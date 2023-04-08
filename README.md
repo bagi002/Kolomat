@@ -4,6 +4,12 @@ Program za resavanje elektricnih kola Vremenski konstantnih struja
 
 Opis projekta nalazi se u prilozenom .PDF fajlu
 
+(Prilikom pokretanja i testiranja programa fajl kolo.txt kopirati na mjesto izvrsne datoteke i 
+ po pottrebi izmjeniti u skladu sa specifikacijama , program u suprotnom nece raditi
+ Adresa fajla nakon komplairanja u VS "\Kolomat\Kolomat\bin\Debug\net6.0"
+ U slucaju greske pisati na mejl blagojemilosevic123@gmail.com
+ )
+
 Trenutno inplementirano
 
 -klasa tipa komponenta
