@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Dynamic;
+using System.Globalization;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography.X509Certificates;
 
@@ -15,6 +16,9 @@ namespace Kolomat
 
             tacka[] tacke = null;
             int nT = 0;
+
+            grana[] grane = null;
+            int nG = 0; 
 
 
 
@@ -35,7 +39,8 @@ namespace Kolomat
             if (error == 0) setovanjeCvorova(tacke, nT);
             if (error == 0) error = proveraKonekcija(tacke, nT);
             if (error == 0) error = proveraElemenata2(element,n);
-
+            if (error == 0) kreiranjeGrana(tacke, nT, ref grane, ref nG);
+            if (error == 0) ispisGrana(grane, nG);
 
 
             if (error == 1) Console.WriteLine("Prekid izvrsavanja usled gore navedene greske !!!!! \n\n\n");
@@ -197,27 +202,52 @@ namespace Kolomat
             return error;
         }//provera komponenata u kratkom spoju vraca 0 ako je sve uredu
 
-        static void ispisJednacina(tacka[] tacke, int nT) 
+        static void kreiranjeGrana(tacka[] tacke, int nT,ref grana[] grane,ref int nG) 
         {
-            int x = 0;
+            nG = 0;
+            for(int i = 0; i < nT; i++)
+            {
+                nG += tacke[i].brVezaCvor();
+            }
+            nG = nG / 2;
+            grana[] privremeni = new grana[nG*2];
+            int j = 0;
             for(int i = 0;i < nT; i++)
             {
-
-                if (tacke[i].cvor && x == 0)
-                {
-                    x++;
-                    tacke[i].vrednosti(0, 0);
-                }
-                if (tacke[i].cvor)
-                {
-
-                    x++;
-
-
-                }
-
+                tacke[i].generatorGranaZaCvor(ref privremeni, ref j);
             }
-        }
+
+            for(int i = 0; i < nG*2-1; i++)
+            {
+                for(j = i+1; j < nG*2; j++)
+                {
+                    privremeni[i].proveraDuplikata(privremeni[j]);
+                }
+            }
+
+            j = 0;
+
+            grane = new grana[nG];
+
+            for(int i = 0;i < nG * 2; i++)
+            {
+                if (!privremeni[i].duplikat) {
+                    grane[j] = privremeni[i];
+                    grane[j].refakturisiID(j+1);
+                    j++;
+                        }
+            }
+        }//kreira objekte za sve grane u kolu
+
+        static void ispisGrana(grana[] grane,int nG)
+        {
+            Console.WriteLine("------------- Spisak grana u kolu ----------------------\n" +
+                "----------------------------------------------------------");
+            for(int i = 0; i < nG; i++)
+            {
+                grane[i].ispisiGranu();
+            }
+        }//test fija ispis grana
 
     }
 
@@ -385,7 +415,49 @@ namespace Kolomat
             return x;
         } //vraca 1 ako je u kratkom spoju ,neispravno unjeta komponenta , inace 0
 
+        public int ProlazKrozGranu1(ref tacka izC, ref tacka pristupna)//podesava informaciju o izlaznom cvoru u slucaju da je izlaz iz
+                                                                       // komponente cvor u suprotnom vraca null toj komponent
+                                                                       // vraca pristupnu tacku za sledeci poziv. Direktno vraca 
+                                                                       // numericku vrednost u zavisnosti od toga na sta je naisla
+                                                                       // 1 eg , 2 is , 3 r ,4 c a ako je to kraj grane datu vrednost umanji za
+                                                                       // 5 pa je u tom slucaju broj manji od 0 
+        {
+            int x = 0;
+            izC = null;
+            int us1 = 0;
 
+            if((bk == pristupna && ak.CvorProvera() == 1) || (ak == pristupna && bk.CvorProvera() == 1))
+            {
+                x = -5;
+                if (ak == pristupna) izC = bk;
+                if (bk == pristupna) izC = ak;
+
+            }
+           
+            
+                if (tip.CompareTo("E") == 0) x += 1;
+                if (tip.CompareTo("IS") == 0) x += 2;
+                if (tip.CompareTo("R") == 0) x += 3;
+                if (tip.CompareTo("C") == 0) x += 4;
+
+
+            
+
+            if (ak == pristupna && us1 == 0)
+            {
+                pristupna = bk;
+                us1 = 1;
+            }
+            if (bk == pristupna && us1 == 0)
+            {
+                pristupna = ak;
+                us1 = 1;
+            }
+
+            return x;
+        }                                                                 
+       
+       
     } 
 
     class tacka
@@ -397,6 +469,50 @@ namespace Kolomat
         int I;
         int V;
 
+        public void generatorGranaZaCvor(ref grana[] privremene,ref int brojac)
+        {
+            if (cvor)
+            {
+                for (int i = 0; i < nkonekcija; i++)
+                {
+                    privremene[brojac] = new grana(this, konekcije[i], brojac);
+                    brojac++;
+
+                }
+            }
+        }// za dati cvor generise sve grane koje polaze iz njega
+        public int brVezaCvor()
+        {
+            int x = 0;
+            if (cvor) x = nkonekcija;
+                return x;
+        }//vrati br konekcija ako je tacka cvor inace 0
+        public komponenta vratiKomponentu(komponenta priv)
+        {
+            komponenta nova = null;
+            int x = 0;
+
+            if (konekcije[0] == priv && x == 0)
+            {
+                x = 1;
+                nova = konekcije[1];
+            }
+
+            if (konekcije[1] == priv && x == 0)
+            {
+                x = 1;
+                nova = konekcije[0];
+            }
+
+            return nova;
+        }//vraca narednu komponentu konektovanu na ovaj cvor // ide kroz granu
+
+        public int CvorProvera()
+        {
+            int x = 0;
+            if (cvor) x = 1;
+            return x;
+        }//vraca 1 ako je data tacka cvor , 0 ako ta tacka nije cvor
         public void vrednosti(int a,int b)
         {
             I = a;
@@ -501,19 +617,99 @@ namespace Kolomat
 
     class grana
     {
+        public bool duplikat = false;
         int id;
         tacka uC;
         tacka izC;
-        int bri;
-        int brv;
-        int brr;
-        int brc;
+        int bri = 0;
+        int brv = 0;
+        int brr = 0;
+        int brc = 0;
         bool zaFormulu = false;
         bool idealanF = false;
+        int I = 0;
 
-        public grana(tacka ulaz)
+        public grana(tacka ulaz,komponenta prva,int x)
         {
+            id = x;
+            uC = ulaz;
+            int provera = 0;
+            komponenta priv = prva;
+            tacka pristupna = uC;
 
-        }
+
+            while (provera >= 0)
+            {
+                provera = priv.ProlazKrozGranu1(ref izC, ref pristupna);
+
+                switch (provera)
+                {
+                    case 1:
+                        brv++;
+                        break;
+                    case 2:
+                        bri++;
+                      break;
+                    case 3:
+                        brr++;
+                        break;
+                    case 4:
+                        brc++;
+                      break;
+                    case 1-5:
+                        brv++;
+                        break;
+                    case 2-5:
+                        bri++;
+                        break;
+                    case 3-5:
+                        brr++;
+                        break;
+                    case 4-5:
+                        brc++;
+                        break;
+
+                } // broji komponente u zavisnosti od povratne vrednosti
+
+                if (provera >= 0)
+                {
+                    priv = pristupna.vratiKomponentu(priv);
+                }
+            }
+
+            if (brc == 0 && bri == 0 && brr == 0 && brv > 0) idealanF = true;
+            if (brc == 0 && bri == 0) zaFormulu=true;
+
+
+        }//generise granu
+        
+        public void proveraDuplikata(grana druga)
+        {
+            if (!duplikat)
+            {
+                if(this.uC == druga.izC && this.izC == druga.uC && !druga.duplikat && bri == druga.bri && brv == druga.brv 
+                    && brr == druga.brr && brc == druga.brc)
+                {
+                    duplikat = true;
+                }
+            }
+        }//ako je poredjena grana ista kao i posmatran posmatrana se proglasava duplikatom
+
+        public void ispisiGranu()
+        {
+            Console.WriteLine(" Grana {0}. Iz cvora {1} u cvor {2} \n" +
+                "U grani se nalzi : {3} Naponskih generatora\n" +
+                "                   {4} Strujnih generatora\n" +
+                "                   {5} Otpornika\n" +
+                "                   {6} Kondezatora",id,uC.id,izC.id,brv,bri,brr,brc);
+            if (zaFormulu) Console.WriteLine("Za datu granu je moguce pisati formulu");
+            if (idealanF) Console.WriteLine("Radi se o idealnoj grani sa samo naponskim generatorima");
+            Console.WriteLine("----------------------------------------------------------------------");
+        }// test funkcija za ispis grane sa osnovnim informacijama o istoj
+
+        public void refakturisiID(int x)
+        {
+            id = x;
+        }//menja id komponente nakon sto je doslo do sredjivanja liste elemenata
     }
 }

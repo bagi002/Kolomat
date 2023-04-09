@@ -38,4 +38,10 @@ trenutno inplementirane funkcionalnosti
 -  Funkcija koja provjerava da li postoje komponente u kratkom spoju , pogresno zadate ako ih 
    nadje vraca gresku u progrmu i prekida izvrsavanje
    --------------------------------- 08/04/2023   16:48 -----------------------------------------------
-   
+-  Implementirana je klasas koja sadrzi sve grane u kolu , vodeci racuna o polaznom i krajnjem 
+   Cvoru , broju komponenata osbinama grane , jacine struje u grani
+-  funkcija koja iz niza objekata tacke i objekata komponente generise niz objekata tipa grana
+   vodeci racuna da se broj grana ispravno odredi i sprjeci dupliciranje grana kao i da se za svaku granu
+   odrede svi parametri sem jacine struje 
+-  Test funkcija za ispis svih grana u kolu  sa osnovnim osobinama 
+--------------------------------- 09/04/2023 13:00 v.beta.5 ------------------------------------------
