@@ -261,9 +261,9 @@ namespace Kolomat
         tacka ak = null;
         int b;
         tacka bk = null;
-        int I;
-        int V;
-        int P;
+        double I;
+        double V;
+        double P;
 
         double vrednost = -1;
 
@@ -464,10 +464,11 @@ namespace Kolomat
     {
         public int id;
         public bool cvor = false;
+        bool poznat = false;
         komponenta[] konekcije = null;
         int nkonekcija = 0;
-        int I;
-        int V;
+        double I;
+        double V;
 
         public void generatorGranaZaCvor(ref grana[] privremene,ref int brojac)
         {
