@@ -2,6 +2,10 @@
 using System.Globalization;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+
+// smer struje u programu definise se preko klase grana
+// Smjer ide od ulaznog cvora u ranu uC ka izlaznom cvoru iz grane izC.
 
 namespace Kolomat
 {
@@ -29,7 +33,7 @@ namespace Kolomat
             Console.WriteLine(n);
          
             if (error == 0) testiranje1(n, element);
-            Console.ReadLine();
+         
 
             if(error == 0) error = proveraPon(n, element);
             if(error == 0) error = dodavanjeTacaka(ref nT,ref tacke,n,element);
@@ -39,11 +43,14 @@ namespace Kolomat
             if (error == 0) setovanjeCvorova(tacke, nT);
             if (error == 0) error = proveraKonekcija(tacke, nT);
             if (error == 0) error = proveraElemenata2(element,n);
-            if (error == 0) kreiranjeGrana(tacke, nT, ref grane, ref nG);
+            if (error == 0) kreiranjeGrana(tacke, nT, ref grane, ref nG,element);
             if (error == 0) ispisGrana(grane, nG);
+            if (error == 0) RefPozC(grane, nG,tacke,nT);
+            if (error == 0) ispisFormulaMPC(tacke, nT, grane, nG);
 
 
             if (error == 1) Console.WriteLine("Prekid izvrsavanja usled gore navedene greske !!!!! \n\n\n");
+            Console.ReadLine();
         }
 
         static int proveraPon(int n,komponenta[] element)
@@ -202,7 +209,7 @@ namespace Kolomat
             return error;
         }//provera komponenata u kratkom spoju vraca 0 ako je sve uredu
 
-        static void kreiranjeGrana(tacka[] tacke, int nT,ref grana[] grane,ref int nG) 
+        static void kreiranjeGrana(tacka[] tacke, int nT,ref grana[] grane,ref int nG, komponenta[] komponente) 
         {
             nG = 0;
             for(int i = 0; i < nT; i++)
@@ -221,7 +228,7 @@ namespace Kolomat
             {
                 for(j = i+1; j < nG*2; j++)
                 {
-                    privremeni[i].proveraDuplikata(privremeni[j]);
+                    privremeni[i].proveraDuplikata(privremeni[j],komponente);
                 }
             }
 
@@ -249,6 +256,86 @@ namespace Kolomat
             }
         }//test fija ispis grana
 
+        static void RefPozC(grana[] grane, int nG, tacka[] tacke, int nT)
+        {
+            int refID = -1;
+
+           for(int i = 0; i < nG; i++)
+            {
+                grane[i].GranaRefC(ref  refID,  i );
+                
+            }
+
+           if(refID < 0)
+            {
+                for(int i = 0; i< nT ; i++)
+                {
+                    if (tacke[i].CvorProvera() == 1)
+                    {
+                        tacke[i].SetReferent();
+                        break;
+                    }
+                }
+            }
+        }//nalazi referentni cvor ako ima idealna naponska grana setuje
+                                                                            //setuje i odgovarajuci idealni naponski cvor
+
+        static void ispisFormulaMPC(tacka[] tacke ,int nT, grana[] grane,int nG)
+        {
+
+            Console.WriteLine("------------------------------------------------------------------\n" +
+                              "                Formule resenja kola po metodi \n" +
+                              "                   Potencijala cvorova (MPC)               \n" +
+                              "----------------------------------------------------------------");
+            int brojac = 0;
+
+            int brC = 0;
+            int brF = 0;
+            for(int i = 0; i < nT ; i++)
+            {
+                if (tacke[i].CvorProvera() == 1) brC++;
+            }
+
+            brF = brC - 1;
+            for(int i =0; i< nG ; i++)
+            {
+                brF = brF - grane[i].akoIdealna();
+            }
+
+            string[] formule = new string[brF];
+
+            for(int i = 0; i < nT; i++)
+            {
+                tacke[i].FormuleDatiOblik1(nG, grane , ref brojac);
+                if(brojac == brF)
+                {
+                    break;
+                }
+            }
+            brojac = 0;
+            Console.WriteLine("-------------------------------------------------------------------");
+            for (int i = 0; i < nT; i++)
+            {
+                tacke[i].FormuleDatiOblik2(nG, grane, ref brojac);
+                if (brojac == brF)
+                {
+                    break;
+                }
+            }
+
+            Console.WriteLine("-------------------------------------------------------------------");
+
+            brojac = 0;
+            for (int i = 0; i < nT; i++)
+            {
+                tacke[i].FormuleDatiOblik3(nG, grane, ref brojac , ref formule[brojac]);
+                if (brojac == brF)
+                {
+                    break;      
+                }
+            }
+        }
+
     }
 
 
@@ -262,11 +349,21 @@ namespace Kolomat
         int b;
         tacka bk = null;
         double I;
-        double V;
+        double U;
         double P;
+        grana pripadajuca = null;
 
         double vrednost = -1;
 
+
+        public void proveraPromene(grana stara,grana nova)
+        {
+            if (pripadajuca == stara) pripadajuca = nova;
+        }//prilikom brisanja viska grana azurira vezu grana sa komponentama
+        public void dodjelaGrane(grana x)
+        {
+            pripadajuca = x;
+        }// dodjeljuje komponenti granu kojoj pripada
         public komponenta(string x, int br)
         {
             id = br;
@@ -275,23 +372,34 @@ namespace Kolomat
             int i = 1;
 
             if (Char.IsLetter(par[0][0])) tip = tip + par[0][0];
-            if (Char.IsLetter(par[0][1]))
+            if (par[0].Length > 1)
             {
-                tip = tip + par[0][1];
-                i++;
-            }
-            if (Char.IsNumber(par[0][i])) priv = priv + par[0][i];
-            i++;
-            if (par[0].Length == i + 2)
-            {
+                if (Char.IsLetter(par[0][1]))
+                {
+                    tip = tip + par[0][1];
+                    i++;
+                }
                 if (Char.IsNumber(par[0][i])) priv = priv + par[0][i];
+                i++;
+                if (par[0].Length == i + 2)
+                {
+                    if (Char.IsNumber(par[0][i])) priv = priv + par[0][i];
+                }
+                n = int.Parse(priv);
             }
-            n = int.Parse(priv);
+            else
+            {
+                n = 1;
+            }
+                 
+          
+            
 
             a = int.Parse(par[1]);
             b = int.Parse(par[2]);
 
             if (tip.CompareTo("W") != 0) vrednost = double.Parse(par[3]);
+            if (tip.CompareTo("E") == 0) U = vrednost;
 
 
         } //konstruktor metoda prima string ucitan iz txt fajla i rasclanjuje ga vadeci revantne podatke
@@ -457,19 +565,358 @@ namespace Kolomat
             return x;
         }                                                                 
        
-       
-    } 
+        public double NaponIdealGrana(ref tacka pristupna,grana ispitivan) // dodaje napon datog generatora u jednacinu za
+                                                                           // racunaje potencijala cvora poznatog unapred
+                                                                           // napon na idealnoj naponskoj grani
+        {
+            double x = 0;
+
+            if (ispitivan == pripadajuca)
+            {
+
+                if (pristupna == ak && x == 0)
+                {
+                    x = U;
+                    pristupna = bk;
+                }
+                if (pristupna == bk && x == 0)
+                {
+                    x = -U;
+                    pristupna = ak;
+                }
+
+            }
+
+            return x;
+        }
+
+        public int proveraPripadnostiGrani(grana test)//vraca 1 ako je komponenta u datoj grani
+        {
+            int x = 0;
+
+            if (test == pripadajuca) x = 1;
+
+            return x;
+        }
+
+        public string dodavanjeNaponaF2(ref tacka privremena) 
+        {
+            string a = "";
+
+            if(tip.CompareTo("E") == 0)
+            {
+
+                if(ak == privremena)
+                {
+                  
+                    a = a + "- E" + n + " ";
+                }else if (bk == privremena)
+                {
+                   
+                    a = a + "+ E" + n + " ";
+                }
+            }
+            if (ak == privremena)
+            {
+                privremena = bk;
+             
+            }
+            else if (bk == privremena)
+            {
+                privremena = ak;
+            
+            }
+
+            return a;
+        }// vraca simbolicki zapis datog generatora za granu i azurira seledecu tacku an  koju se nailazi
+
+        public string dodavanjeOtporaF2(ref tacka privremena,ref int pr)
+        {
+            string a = "";
+
+            if (tip.CompareTo("R") == 0)
+            {
+                if (pr != 0)
+                {
+                    a = a + "+";
+                }
+                else
+                {
+                    pr++;
+                }
+                
+                  
+                
+                a = a + " R" + n +" ";
+            }
+            if (ak == privremena)
+            {
+                privremena = bk;
+
+            }
+            else if (bk == privremena)
+            {
+                privremena = ak;
+
+            }
+
+            return a;
+        }// vraca simbolicki zapis datog otpornika za granu i azurira seledecu tacku an  koju se nailazi
+
+
+        public string dodavanjeNaponaF3(ref tacka privremena)
+        {
+            string a = "";
+
+            if (tip.CompareTo("E") == 0)
+            {
+
+                if (ak == privremena)
+                {
+
+                    a = a + "- " + vrednost + " ";
+                }
+                else if (bk == privremena)
+                {
+
+                    a = a + "+ " + vrednost + " ";
+                }
+            }
+            if (ak == privremena)
+            {
+                privremena = bk;
+
+            }
+            else if (bk == privremena)
+            {
+                privremena = ak;
+
+            }
+
+            return a;
+        }// vraca simbolicki zapis datog generatora za granu i azurira seledecu tacku an  koju se nailazi
+
+        public string dodavanjeOtporaF3(ref tacka privremena, ref int pr)
+        {
+            string a = "";
+
+            if (tip.CompareTo("R") == 0)
+            {
+                if (pr != 0)
+                {
+                    a = a + "+";
+                }
+                else
+                {
+                    pr++;
+                }
+
+
+
+                a = a + " " + vrednost + " ";
+            }
+            if (ak == privremena)
+            {
+                privremena = bk;
+
+            }
+            else if (bk == privremena)
+            {
+                privremena = ak;
+
+            }
+
+            return a;
+        }// vraca simbolicki zapis datog otpornika za granu i azurira seledecu tacku an  koju se nailazi
+
+    }
 
     class tacka
     {
         public int id;
-        public bool cvor = false;
-        bool poznat = false;
+         bool cvor = false;
+         bool poznat = false;
         komponenta[] konekcije = null;
         int nkonekcija = 0;
         double I;
         double V;
 
+        public string krozGranuF3(grana trenutna, tacka uC, int brv)
+        {
+            string a = "";
+
+            tacka privremena = uC;
+
+            komponenta prateca = null;
+
+            for (int i = 0; i < nkonekcija; i++)
+            {
+                if (konekcije[i].proveraPripadnostiGrani(trenutna) == 1)
+                {
+                    prateca = konekcije[i];
+                    break;
+                }
+            }
+            komponenta prva = prateca;
+
+            if (brv > 0)
+            {
+
+                while (trenutna.proveraKraja(privremena) != 1)
+                {
+
+
+                    a = a + prateca.dodavanjeNaponaF3(ref privremena);
+
+                    if (privremena.konekcije[0] == prateca)
+                    {
+                        prateca = privremena.konekcije[1];
+
+                    }
+                    else
+                    {
+                        prateca = privremena.konekcije[0];
+                    }
+
+                }
+            }
+            a = a + ") / (";
+
+            privremena = uC;
+            prateca = prva;
+
+            int pr1 = 0;
+
+            while (trenutna.proveraKraja(privremena) != 1)
+
+            {
+
+                a = a + prateca.dodavanjeOtporaF3(ref privremena, ref pr1);
+
+                if (privremena.konekcije[0] == prateca)
+                {
+                    prateca = privremena.konekcije[1];
+
+                }
+                else
+                {
+                    prateca = privremena.konekcije[0];
+                }
+            }
+
+            a = a + ") ";
+
+            return a;
+        } // iz date tacke prolazi kroz granu i ispisuje formule sa brojevnim vrednostima
+       
+        public string krozGranuF2(grana trenutna , tacka uC , int brv)
+        {
+            string a = "";
+
+            tacka privremena = uC;
+
+            komponenta prateca = null;
+
+            for (int i  = 0;i < nkonekcija; i++)
+            {
+                if (konekcije[i].proveraPripadnostiGrani(trenutna) == 1)
+                {
+                    prateca = konekcije[i];
+                    break;
+                }
+            }
+            komponenta prva = prateca;
+
+            if (brv > 0)
+            {
+
+                while (trenutna.proveraKraja(privremena) != 1)
+                {
+
+                    
+                   a = a + prateca.dodavanjeNaponaF2(ref privremena);
+
+                    if (privremena.konekcije[0] == prateca)
+                    {
+                        prateca = privremena.konekcije[1];
+
+                    }
+                    else
+                    {
+                        prateca = privremena.konekcije[0];
+                    }
+
+                }
+            }
+            a = a + ") / (";
+
+            privremena = uC;
+            prateca = prva;
+
+            int pr1 = 0;
+
+            while (trenutna.proveraKraja(privremena) != 1)
+
+            {
+                
+                a = a + prateca.dodavanjeOtporaF2(ref privremena,ref pr1);
+
+                if (privremena.konekcije[0] == prateca)
+                {
+                    prateca = privremena.konekcije[1];
+
+                }
+                else
+                {
+                    prateca = privremena.konekcije[0];
+                }
+            }
+
+            a = a + ") ";
+
+            return a;
+        }//prolazi iz date tacke kroz granu i ispisuje formulu po MPC
+
+        public void SetPoznati(tacka uC,grana ta)
+        {
+            V = 0;
+            tacka privremena = uC;
+            poznat = true;
+            komponenta prethodna;
+
+            for (int i = 0; i < nkonekcija; i++)
+            {
+                if(privremena == uC)
+                {
+                    V += konekcije[i].NaponIdealGrana(ref privremena, ta);
+                    prethodna = konekcije[i];
+
+                    while(ta.proveraKraja(privremena) == 0 && privremena != uC)
+                    {
+                        if (privremena.konekcije[0] == prethodna)
+                        {
+                            prethodna = privremena.konekcije[1];
+                            V +=privremena.konekcije[1].NaponIdealGrana(ref privremena, ta);
+                           
+                        }
+                        if (privremena.konekcije[1] == prethodna)
+                        {
+                            prethodna = privremena.konekcije[0];
+                           V += privremena.konekcije[0].NaponIdealGrana(ref privremena, ta);
+
+                        }
+                    }
+
+                }
+            }
+
+
+        } //setuje cvor koji se nalazi na suprotnom kraju od referentnog kod poznate grane
+        public void SetReferent()
+        {
+            V = 0;
+            poznat = true;
+        }//postavlja referentni cvor
         public void generatorGranaZaCvor(ref grana[] privremene,ref int brojac)
         {
             if (cvor)
@@ -518,7 +965,7 @@ namespace Kolomat
         {
             I = a;
             V = b;  
-        }
+        }//prima vrednosti napona i struje i stavlja ih u cvor
         public int povezanost()
         {
             int x = 0;
@@ -613,6 +1060,90 @@ namespace Kolomat
             nkonekcija = 0;
         }
 
+        public double vratiPodatak(int tst) // vraca Napon za 1arg , vraca stuju za 2 kao arg
+        {
+            double x = 0;
+
+            if (tst == 1) x = V;
+            if (tst == 2) x = I;
+
+            return x;
+        }
+        public int jePoznat()
+        {
+            int x = 0;
+
+            if (poznat) x = 1;
+
+            return x;
+        }//vraca 1 ako je dati cvor poznat
+
+        public void FormuleDatiOblik1(int nG, grana[] grane,ref int brojac)
+        {
+
+            string formula = "";
+            int ni = 0;
+
+            if (cvor && !poznat)
+            {
+                brojac++;
+                for (int i = 0; i < nG; i++)
+                {
+                    formula = formula + grane[i].formula1(this, ref ni);
+                }
+
+                formula = formula + " = 0";
+
+                Console.WriteLine("  Cvor {0} :", id);
+                Console.WriteLine("              "+formula);
+            }
+
+        }// za dati cvor ako zadovoljava uslove ispisuje formulu prvog nivoa odnosno prvi kirkofov zakon za cvorove
+
+        public void FormuleDatiOblik2(int nG, grana[] grane, ref int brojac)
+        {
+
+            string formula = "";
+            int ni = 0;
+
+            if (cvor && !poznat)
+            {
+                brojac++;
+                for (int i = 0; i < nG; i++)
+                {
+                    formula = formula + grane[i].formula2(this, ref ni);
+                }
+
+                formula = formula + " = 0";
+
+                Console.WriteLine("  Cvor {0} :", id);
+                Console.WriteLine("              " + formula);
+            }
+
+        }// za dati cvor ispise odgovarajucu formulu po MPC
+
+
+        public void FormuleDatiOblik3(int nG, grana[] grane, ref int brojac,ref string formula)
+        {
+
+            formula = "";
+            int ni = 0;
+
+            if (cvor && !poznat)
+            {
+                brojac++;
+                for (int i = 0; i < nG; i++)
+                {
+                    formula = formula + grane[i].formula3(this, ref ni);
+                }
+
+                formula = formula + " = 0";
+
+                Console.WriteLine("  Cvor {0} :", id);
+                Console.WriteLine("              " + formula);
+            }
+
+        }// za dati cvor ispise odgovarajucu formulu po MPC
     }
 
 
@@ -630,6 +1161,15 @@ namespace Kolomat
         bool idealanF = false;
         int I = 0;
 
+        public int proveraKraja(tacka kontrolna)
+        {
+            int x = 0;
+
+            if (kontrolna == izC) x = 1;
+
+            return x;
+        }//vraca 1 za kraj grane
+
         public grana(tacka ulaz,komponenta prva,int x)
         {
             id = x;
@@ -641,6 +1181,8 @@ namespace Kolomat
 
             while (provera >= 0)
             {
+                priv.dodjelaGrane(this);
+
                 provera = priv.ProlazKrozGranu1(ref izC, ref pristupna);
 
                 switch (provera)
@@ -676,15 +1218,16 @@ namespace Kolomat
                 {
                     priv = pristupna.vratiKomponentu(priv);
                 }
+
             }
 
             if (brc == 0 && bri == 0 && brr == 0 && brv > 0) idealanF = true;
-            if (brc == 0 && bri == 0) zaFormulu=true;
+            if (brc == 0 && bri == 0 && brr > 0) zaFormulu=true;
 
 
         }//generise granu
         
-        public void proveraDuplikata(grana druga)
+        public void proveraDuplikata(grana druga, komponenta[] komponente)
         {
             if (!duplikat)
             {
@@ -692,6 +1235,10 @@ namespace Kolomat
                     && brr == druga.brr && brc == druga.brc)
                 {
                     duplikat = true;
+                    for(int i = 0; i < komponente.Length; i++)
+                    {
+                        komponente[i].proveraPromene(this, druga);
+                    }
                 }
             }
         }//ako je poredjena grana ista kao i posmatran posmatrana se proglasava duplikatom
@@ -712,5 +1259,222 @@ namespace Kolomat
         {
             id = x;
         }//menja id komponente nakon sto je doslo do sredjivanja liste elemenata
+
+        public int GranaRefC(ref int id,int m)
+        {
+            int x = 0;
+
+            if (idealanF)
+            {
+                x = 1;
+                uC.SetReferent();
+                id = m;
+
+                int Napon = 0;
+                tacka pristupna = uC;
+
+                for(int i  = 0; i < brv; i++)
+                {
+                    izC.SetPoznati(uC,this); 
+                }
+
+            }
+
+            return x;
+        }//proverava da li je grana idealna naponska
+                                                 //ako jeste setuje odgovarajuci referentni i poznati cvor
+
+        public int akoIdealna()
+        {
+            int x = 0;
+
+            if (idealanF) x = 1;
+
+            return x;
+        }//vraca keca ako je idealna grana
+
+        public string formula1(tacka kontrolna,ref int x)
+        {
+            String a = "";
+
+            if (uC == kontrolna)
+            {
+                if (x != 0) a = a + " + ";
+                x++;
+                a = a + "I" + id;
+            }
+            if (izC == kontrolna)
+            {
+                a = a + " - ";
+                x++;
+                a = a + "I" + id;
+            }
+
+            return a;
+        }// u formulu tipa 1 dodaje oznaku za datu granu  na formulu koja se pise
+
+        public string formula2(tacka kontrolna, ref int x) // za formulu po MPC za odredjenicvor svakoj njegovoj grani
+                                                           // generise izraz za datu formulu
+        {
+            String a = "";
+
+            if (uC == kontrolna)
+            {
+                if (x != 0) a = a + " + ";
+                x++;
+                if (zaFormulu)
+                {
+                    a = a + "( V" + uC.id + " - V" + izC.id + " ";
+                    a = a + uC.krozGranuF2(this, uC,brv);
+                }
+                else
+                {
+                    if(brc > 0)
+                    {
+                        a = a + "0";
+                    }
+                    else
+                    {
+                        a = a + "I" + id;
+                    }
+                }
+              
+            }
+            if (izC == kontrolna)
+            {
+                a = a + " - ";
+                x++;
+                if (zaFormulu)
+                {
+                    a = a + "( V" + uC.id + " - V" + izC.id + " ";
+                    a = a + uC.krozGranuF2(this, uC, brv);
+                }
+                else
+                {
+                    if (brc > 0)
+                    {
+                        a = a + "0";
+                    }
+                    else
+                    {
+                        a = a + "I" + id;
+                    }
+                }
+
+            }
+
+            return a;
+        }
+        public string formula3(tacka kontrolna, ref int x) 
+        {
+            String a = "";
+
+            if (uC == kontrolna)
+            {
+                if (x != 0) a = a + " + ";
+                x++;
+                if (zaFormulu)
+                {
+
+                    a = a + "(";
+
+                    if (uC.jePoznat() == 1)
+                    {
+                        a = a + " " + uC.vratiPodatak(1) + " - ";
+                    }
+                    else
+                    {
+                        a = a + " V" + uC.id ;
+                        if (izC.vratiPodatak(1) > 0)
+                        {
+                            a = a + " - ";
+                        }
+                        else
+                        {
+                            a = a + " + ";
+                        }
+                    }
+
+                    if (izC.jePoznat() == 1)
+                    {
+                        a = a + Math.Abs(izC.vratiPodatak(1));
+                     
+                    }
+                    else
+                    {
+                        a = a + "V" + izC.id ;
+                    }
+
+                    a += " ";
+
+                    a = a + uC.krozGranuF3(this, uC, brv);
+                }
+                else
+                {
+                    if (brc > 0)
+                    {
+                        a = a + "0A";
+                    }
+                    else
+                    {
+                        a = a + I + "A";
+                    }
+                }
+
+            }
+            if (izC == kontrolna)
+            {
+                a = a + " - ";
+                x++;
+
+                if (zaFormulu)
+                {
+                    a = a + "(";
+
+                    if (uC.jePoznat() == 1)
+                    {
+                        a = a + " " + uC.vratiPodatak(1) + "V - ";
+                    }
+                    else
+                    {
+                        a = a + " V" + uC.id ;
+                        if (izC.vratiPodatak(1) > 0)
+                        {
+                            a = a + " - ";
+                        }
+                        else
+                        {
+                            a = a + " + ";
+                        }
+                    }
+
+                    if (izC.jePoznat() == 1)
+                    {
+                        a = a + " " + Math.Abs(izC.vratiPodatak(1));
+                    }
+                    else
+                    {
+                        a = a + "V" + izC.id;
+                    }
+
+                    a += " ";
+
+                    a = a + uC.krozGranuF3(this, uC, brv);
+                }
+                else
+                {
+                    if (brc > 0)
+                    {
+                        a = a + "0A";
+                    }
+                    else
+                    {
+                        a = a + I + "A";
+                    }
+                }
+            }
+
+                return a;
+        } //u formulama se nalaze brojevne vrednosti
     }
 }

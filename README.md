@@ -7,8 +7,16 @@ Opis projekta nalazi se u prilozenom .PDF fajlu
 (Prilikom pokretanja i testiranja programa fajl kolo.txt kopirati na mjesto izvrsne datoteke i 
  po pottrebi izmjeniti u skladu sa specifikacijama , program u suprotnom nece raditi
  Adresa fajla nakon komplairanja u VS "\Kolomat\Kolomat\bin\Debug\net6.0"
- U slucaju greske pisati na mejl blagojemilosevic123@gmail.com
- )
+ U slucaju greske pisati na mejl blagojemilosevic123@gmail.com)
+
+ Sve funkcionalno zavrsene cjeline u vidu verzija nalaze se odvojeno zipovane
+ Tu se ne nalaze kodovi vec sam program izvrsna verzija 
+ U datom folderu samo izmjenite .txt fajl u skladu sa specifikacijama i pokrenete .exe fajl koji se tu nalazi
+
+  PROGRAM TRENUTNO IMA ODREDJENI BROJ ISPISA KOJI NISU PREDVIDJENI SPECIFIKACIJOM TU SE 
+  NALAZE RADI TESTIRANJA FUNKCIONALNOSTI FUNKCIJA KOJE RADE U POZADINI !!!!
+
+ ------------------------------------------------------------------------------------------------
 
 Trenutno inplementirano
 
@@ -17,6 +25,8 @@ Trenutno inplementirano
 -klasa tipa grana
 
 trenutno inplementirane funkcionalnosti
+
+---------------------------- ISTORIJA RADA NA KODU (VERSION HISTORY) -----------------------------
 
 -  Ucitavanje sirovih podataka o komponentama iz fajla kolo.txt i sredjivanje tih podataka
    tako da se dobije niz podataka tipa komponenta
@@ -37,11 +47,25 @@ trenutno inplementirane funkcionalnosti
    program prekida izvrsavanje
 -  Funkcija koja provjerava da li postoje komponente u kratkom spoju , pogresno zadate ako ih 
    nadje vraca gresku u progrmu i prekida izvrsavanje
-   --------------------------------- 08/04/2023   16:48 -----------------------------------------------
+
+   ----------------------------- 08/04/2023   16:48 -------------------------------------------
+
 -  Implementirana je klasas koja sadrzi sve grane u kolu , vodeci racuna o polaznom i krajnjem 
    Cvoru , broju komponenata osbinama grane , jacine struje u grani
 -  funkcija koja iz niza objekata tacke i objekata komponente generise niz objekata tipa grana
    vodeci racuna da se broj grana ispravno odredi i sprjeci dupliciranje grana kao i da se za svaku granu
    odrede svi parametri sem jacine struje 
--  Test funkcija za ispis svih grana u kolu  sa osnovnim osobinama 
---------------------------------- 09/04/2023 13:00 v.beta.5 ------------------------------------------
+-  Test funkcija za ispis svih grana u kolu  sa osnovnim osobinama 0
+
+------------------------------ 09/04/2023 13:00 v.beta.5 ---------------------------------------
+
+-  Implementirana funkcija koja nalazi referntni cvor u kolu setuje njegovu vrednost
+    Fija vodi racuna o granama koje imaju samo idealne naponske generatore u sebi i 
+    bira najpovoljniji cvor u kolu a zatim potencijalno odredjuje i sve druge cvorove
+    cije potencijale moze da odredi
+-  Implementirana Funkcija za ispis formula po MPC i to do odredjene faze 
+        + Ispis formula sa strujama tipa I1 - I2 + I3 = 0 za svaki cvor
+        + Formule napisane preko MPC gdje se I1 npr mjenja sa (V1 - V2 + E3)/ (R1 + R2)
+        + Formule po MPC sa uvrstenim brojnim vrjednostima koje su poznate
+
+------------------------------ 10/04/2023 16:00 BETA V.7 ----------------------------------------
