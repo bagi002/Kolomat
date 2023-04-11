@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿using Microsoft.VisualBasic;
+using System.Dynamic;
 using System.Globalization;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
@@ -281,7 +282,9 @@ namespace Kolomat
         }//nalazi referentni cvor ako ima idealna naponska grana setuje
                                                                             //setuje i odgovarajuci idealni naponski cvor
 
-        static void ispisFormulaMPC(tacka[] tacke ,int nT, grana[] grane,int nG)
+        static void ispisFormulaMPC(tacka[] tacke ,int nT, grana[] grane,int nG) // ispisuje formule po MPC , podesava dodatne
+                                                                                 // parametre poznatih grna nakraju i rjesi
+                                                                                 // sistem jednacina simbolicki i logicki
         {
 
             Console.WriteLine("------------------------------------------------------------------\n" +
@@ -301,6 +304,7 @@ namespace Kolomat
             for(int i =0; i< nG ; i++)
             {
                 brF = brF - grane[i].akoIdealna();
+                grane[i].strujaPGrane();
             }
 
             string[] formule = new string[brF];
@@ -366,6 +370,10 @@ namespace Kolomat
                 formulaMod4(ref formule[i],brF);
                 Console.WriteLine(formule[i]);
             }
+
+            Console.WriteLine("-------------------------------------------------------------------");
+            resavanjeJednacina(ref  formule);
+
         }
 
         static void formulaMod(ref string formula)
@@ -439,6 +447,19 @@ namespace Kolomat
                     }
                     razbijenaF[i] = "";
                     razbijenaF[i - 1] = "";
+                } 
+                if ( A && (razbijenaF[i - 1].CompareTo("+") == 0 || razbijenaF[i - 1].CompareTo("-") == 0) && razbijenaF[i + 1].CompareTo("=") == 0)
+                {
+                    if (razbijenaF[i - 1].CompareTo("+") == 0)
+                    {
+                        c = c - a;
+                    }
+                    if (razbijenaF[i - 1].CompareTo("-") == 0)
+                    {
+                        c = c + a;
+                    }
+                    razbijenaF[i] = "";
+                    razbijenaF[i - 1] = "";
                 }
             }
 
@@ -467,7 +488,9 @@ namespace Kolomat
 
             formula = "";
             formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
-        }
+        }//prvi krug modifikacije formule racunske operacije koje je moguce
+                                                     // momentalno odraditi tipa const +- const , eliminacija nepotrebnih zagrad
+         
 
         static void formulaMod2(ref string formula)
         {
@@ -592,7 +615,7 @@ namespace Kolomat
             formula = "";
             formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
 
-        }
+        }// mnozenje formule sa NZS da bi se eliminisali razlomci
 
         static void formulaMod3(ref string formula)
         {
@@ -657,10 +680,11 @@ namespace Kolomat
             formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
 
 
-        }
+        }//oslobadjanje zagrada
 
         static void formulaMod4(ref string formula,int brF)
         {
+            
             string[] razbijenaF = formula.Split(' ');
 
             bool A;
@@ -699,6 +723,21 @@ namespace Kolomat
                         }
                         razbijenaF[i - 1] = "";
                     }
+                    if (A && (razbijenaF[i - 1].CompareTo("+") == 0 || razbijenaF[i - 1].CompareTo("-") == 0)
+                        && (razbijenaF[i + 1].CompareTo("=") == 0))
+                    {
+                        razbijenaF[i] = "";
+                        if (razbijenaF[i - 1].CompareTo("-") == 0)
+                        {
+                            c = c + a;
+                        }
+                        else
+                        {
+                            c = c - a;
+                        }
+                        razbijenaF[i - 1] = "";
+                    }
+
                 }
                 else
                 {
@@ -719,6 +758,7 @@ namespace Kolomat
                 }
             }
 
+            c = c + double.Parse(razbijenaF[razbijenaF.Length - 1]);
             razbijenaF[razbijenaF.Length - 1] = c.ToString();
 
             formula = "";
@@ -746,6 +786,10 @@ namespace Kolomat
 
             List<string> lsStringova = promenjive.Distinct().ToList();
             promenjive = lsStringova.ToArray();
+
+
+            Array.Sort(promenjive, (x, y) => String.Compare(x, y, StringComparison.Ordinal)); //izguglana fija da ne radim rucno sortira niz
+
 
             formula = "0 + " + formula;
             razbijenaF = formula.Split(' ');
@@ -826,7 +870,102 @@ namespace Kolomat
 
             formula = formula + "= " + razbijenaF[razbijenaF.Length-1];
 
-        }//
+        }//zavrsno sredjivanje jednacina u oblik pogodan za rjesavanje
+
+        static void resavanjeJednacina(ref string[] formule) 
+        {
+            string privremeni = " ";
+            for(int i = 0;i < formule.Length;i++)
+            {
+                privremeni = " " + formule[i];
+            }
+
+            string[] promenjive = privremeni.Split(" ");
+            double a = 0;
+            bool A = false;
+            for (int i = 0; i < promenjive.Length - 2; i++)
+            {
+                A = double.TryParse(promenjive[i], out a);
+                if (A || promenjive[i].CompareTo("+") == 0 || promenjive[i].CompareTo("-") == 0 || promenjive[i].CompareTo("*") == 0)
+                {
+                    promenjive[i] = "";
+                }
+            }
+            promenjive[promenjive.Length - 1] = "";
+            promenjive[promenjive.Length - 2] = "";
+
+            List<string> lsStringova = promenjive.Distinct().ToList();
+            promenjive = lsStringova.ToArray();
+
+
+            Array.Sort(promenjive, (x, y) => String.Compare(x, y, StringComparison.Ordinal)); //izguglana fija da ne radim rucno sortira niz
+
+            double[,] koeifcijenti = new double[formule.Length, promenjive.Length-1]; 
+            double[] jednako = new double[formule.Length];
+
+            string[] formuleR;
+
+            for(int i = 0; i < formule.Length; i++)
+            {
+                formuleR = formule[i].Split(" ");
+
+                for(int j = 3;j <  formuleR.Length;j+=4)
+                {
+                    for(int k = 1; k < promenjive.Length; k++)
+                    {
+                        if (promenjive[k].CompareTo(formuleR[j]) == 0)
+                        {
+
+                            if (formuleR[j - 3].CompareTo("+") == 0)
+                            {
+                                koeifcijenti[i,k-1] = double.Parse(formuleR[j-2]);
+                            }
+                            if (formuleR[j - 3].CompareTo("-") == 0)
+                            {
+                                koeifcijenti[i, k - 1] = - double.Parse(formuleR[j - 2]);
+                            }
+
+                        }
+                    }
+                }
+
+                jednako[i] = double.Parse(formuleR[formuleR.Length-1]);
+            }
+
+           
+            for (int i = 0; i < formule.Length - 1; i++)
+            {
+                for (int j = i + 1; j < formule.Length; j++)
+                {
+                    double factor = koeifcijenti[j, i] / koeifcijenti[i, i];
+                    for (int k = i + 1; k < formule.Length; k++)
+                    {
+                        koeifcijenti[j, k] -= factor * koeifcijenti[i, k];
+                    }
+                    jednako[j] -= factor * jednako[i];
+                }
+            }
+
+            double[] x = new double[formule.Length];
+            for (int i = formule.Length - 1; i >= 0; i--)
+            {
+                double sum = 0;
+                for (int j = i + 1; j < formule.Length; j++)
+                {
+                    sum += koeifcijenti[i, j] * x[j];
+                }
+                x[i] = (jednako[i] - sum) / koeifcijenti[i, i];
+            }
+
+            for(int i = 0; i < formule.Length;i++)
+            {
+                Console.WriteLine(promenjive[i+1] + " = " + x[i].ToString() + "V");   
+            }
+
+           
+
+            
+        }
 
     }
 
@@ -848,6 +987,29 @@ namespace Kolomat
         double vrednost = -1;
 
 
+        public double vratiStrujuIS(ref tacka privremena)
+        {
+            double x = 0;
+
+            if (tip.CompareTo("IS") == 0)
+            {
+                if (bk == privremena) x = vrednost;
+                if (ak == privremena) x = -vrednost;
+            }
+
+            if (privremena == ak)
+            {
+                privremena = bk;
+            }
+            else
+            {
+                privremena = ak;
+            }
+
+            
+
+            return x;
+        }
         public void proveraPromene(grana stara,grana nova)
         {
             if (pripadajuca == stara) pripadajuca = nova;
@@ -864,11 +1026,12 @@ namespace Kolomat
             int i = 1;
 
             if (Char.IsLetter(par[0][0])) tip = tip + par[0][0];
-            if (par[0].Length > 1)
+            if(par[0][0] == 'I') tip = tip + par[0][1];
+            if ((par[0].Length > 1 && par[0][0] != 'I') || (par[0].Length > 2 && par[0][0] == 'I'))
             {
                 if (Char.IsLetter(par[0][1]))
                 {
-                    tip = tip + par[0][1];
+                   
                     i++;
                 }
                 if (Char.IsNumber(par[0][i])) priv = priv + par[0][i];
@@ -881,7 +1044,7 @@ namespace Kolomat
             }
             else
             {
-                n = 1;
+                n = 0;
             }
                  
           
@@ -1068,12 +1231,12 @@ namespace Kolomat
 
                 if (pristupna == ak && x == 0)
                 {
-                    x = U;
+                    x = -U;
                     pristupna = bk;
                 }
                 if (pristupna == bk && x == 0)
                 {
-                    x = -U;
+                    x = U;
                     pristupna = ak;
                 }
 
@@ -1368,6 +1531,46 @@ namespace Kolomat
 
             return a;
         }//prolazi iz date tacke kroz granu i ispisuje formulu po MPC
+        public double krozGranuStruja(grana trenutna, tacka uC, int bri)
+        {
+            double a = 0;
+
+            tacka privremena = uC;
+
+            komponenta prateca = null;
+
+            for (int i = 0; i < nkonekcija; i++)
+            {
+                if (konekcije[i].proveraPripadnostiGrani(trenutna) == 1)
+                {
+                    prateca = konekcije[i];
+                    break;
+                }
+            }
+           
+                while (trenutna.proveraKraja(privremena) != 1)
+                {
+
+                a = a + prateca.vratiStrujuIS(ref privremena);
+
+                    if (privremena.konekcije[0] == prateca)
+                    {
+                        prateca = privremena.konekcije[1];
+
+                    }
+                    else
+                    {
+                        prateca = privremena.konekcije[0];
+                    }
+
+                }
+            
+          
+
+
+            return a;
+        }//prolazi iz date tacke kroz granu i odredjuje jacinu struje u grani
+
 
         public void SetPoznati(tacka uC,grana ta)
         {
@@ -1651,8 +1854,15 @@ namespace Kolomat
         int brc = 0;
         bool zaFormulu = false;
         bool idealanF = false;
-        int I = 0;
+        double I = 0;
 
+        public void strujaPGrane()
+        {
+            if (bri > 0)
+            {
+                I = uC.krozGranuStruja(this, uC, bri);
+            }
+        }
         public int proveraKraja(tacka kontrolna)
         {
             int x = 0;
@@ -1863,11 +2073,11 @@ namespace Kolomat
 
             if (uC == kontrolna)
             {
-                if (x != 0) a = a + " + ";
+                
                 x++;
                 if (zaFormulu)
                 {
-
+                    if (x != 0) a = a + " + ";
                     a = a + "(";
 
                     if (uC.jePoznat() == 1)
@@ -1877,7 +2087,7 @@ namespace Kolomat
                     else
                     {
                         a = a + " V" + uC.id ;
-                        if (izC.vratiPodatak(1) > 0)
+                        if (izC.vratiPodatak(1) >= 0)
                         {
                             a = a + " - ";
                         }
@@ -1905,32 +2115,34 @@ namespace Kolomat
                 {
                     if (brc > 0)
                     {
-                        a = a + "0";
+                        a = a + " + 0";
                     }
                     else
                     {
-                        a = a + I + "";
+                       if(I > 0) a = a + " + " + I + "";
+                       if(I < 0) a = a + " - " + Math.Abs(I) + "";
                     }
                 }
 
             }
             if (izC == kontrolna)
             {
-                a = a + " - ";
+                
                 x++;
 
                 if (zaFormulu)
                 {
+                    a = a + " - ";
                     a = a + "(";
 
                     if (uC.jePoznat() == 1)
                     {
-                        a = a + " " + uC.vratiPodatak(1) + "V - ";
+                        a = a + " " + uC.vratiPodatak(1) + " - ";
                     }
                     else
                     {
                         a = a + " V" + uC.id ;
-                        if (izC.vratiPodatak(1) > 0)
+                        if (izC.vratiPodatak(1) >= 0)
                         {
                             a = a + " - ";
                         }
@@ -1957,11 +2169,12 @@ namespace Kolomat
                 {
                     if (brc > 0)
                     {
-                        a = a + "0";
+                        a = a + " - 0";
                     }
                     else
                     {
-                        a = a + I + "";
+                        if (I > 0) a = a + " - " + I + "";
+                        if (I < 0) a = a + " + " + Math.Abs(I) + "";
                     }
                 }
             }

@@ -81,3 +81,11 @@ trenutno inplementirane funkcionalnosti
                                     ono je za potrebe testa trenutno 0)
 
 ------------------------------ 11/04/2023 12:05 BETA V.8 -----------------------------------------
+
+- Implementirana funkcija za odredjivanje struje u granama u kojima se nalaze strujni generatori
+- Ispravljen niz gresaka u pisanju formula i bagova u istime (potrebno jos testiranja)
+- Ispravljeni bagovi prikom unosa podataka omogucen unos komponenata bey broja samo IS ,W ,R
+- Ispravljena nekolicina bagova u samoj logici programa (konstruktor grana)
+- !!! IMPLEMENTIRANA FUNKCIJA KOJA RJESAVA SISTEM JEDNACINA i ispisuje resenja istih
+
+------------------------------ 11/04/2023 21:30 ALFA V.1 ------------------------------------
