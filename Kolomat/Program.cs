@@ -1,6 +1,7 @@
 ﻿using System.Dynamic;
 using System.Globalization;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -334,7 +335,498 @@ namespace Kolomat
                     break;      
                 }
             }
+            Console.WriteLine("-------------------------------------------------------------------");
+
+            for(int i = 0;i < brF; i++)
+            {
+                formulaMod(ref formule[i]);
+                Console.WriteLine(formule[i]);
+            }
+
+            Console.WriteLine("-------------------------------------------------------------------");
+
+            for (int i = 0; i < brF; i++)
+            {
+                formulaMod2(ref formule[i]);
+                Console.WriteLine(formule[i]);
+            }
+
+            Console.WriteLine("-------------------------------------------------------------------");
+
+            for (int i = 0; i < brF; i++)
+            {
+                formulaMod3(ref formule[i]);
+                Console.WriteLine(formule[i]);
+            }
+
+            Console.WriteLine("-------------------------------------------------------------------");
+
+            for (int i = 0; i < brF; i++)
+            {
+                formulaMod4(ref formule[i],brF);
+                Console.WriteLine(formule[i]);
+            }
         }
+
+        static void formulaMod(ref string formula)
+        {
+            string[] razbijenaF = formula.Split(' ');
+
+            bool A;
+            bool B;
+            double a=0;
+            double b=0;
+            double c=0;
+         
+
+            int konZ = 0;
+
+
+            for (int i = 0; i < razbijenaF.Length; i++)
+            {
+              
+                if (i+2 < razbijenaF.Length)
+                {
+                    A = double.TryParse(razbijenaF[i],out a);
+                    B = double.TryParse(razbijenaF[i + 2],out b);
+
+                    
+                    if (A && B && (razbijenaF[i+1].CompareTo("+") == 0 || razbijenaF[i + 1].CompareTo("-") == 0))
+                    {
+                        if(razbijenaF[i - 1].CompareTo("-") != 0)
+                        {
+                            if (razbijenaF[i + 1].CompareTo("+") == 0) c = a + b;
+                            if (razbijenaF[i + 1].CompareTo("-") == 0) c = a - b;
+                        }
+                        else
+                        {
+                            if (razbijenaF[i + 1].CompareTo("+") == 0) c = -a + b;
+                            if (razbijenaF[i + 1].CompareTo("-") == 0) c = -a - b;
+                            razbijenaF[i - 1] = "";
+                        }
+                        
+                        razbijenaF[i] = "";
+                        razbijenaF[i+1] = "";
+                        razbijenaF[i+2] = "";
+                        if (c < 0) 
+                        {
+                            razbijenaF[i - 1] = "-";
+                            c = Math.Abs(c);
+                        }
+                        razbijenaF[i] = razbijenaF[i] + c.ToString();
+
+                    }
+                }
+            }
+            formula = "";
+            formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));//funkcija za izostavljanje praznih stringova izguglana
+
+            razbijenaF = formula.Split(' ');
+            c = double.Parse(razbijenaF[razbijenaF.Length - 1]);
+
+            for(int i = 1;i < razbijenaF.Length-1;i++)
+            {
+                A = double.TryParse(razbijenaF[i], out a);
+                if (A && (razbijenaF[i-1].CompareTo("+") == 0 || razbijenaF[i - 1].CompareTo("-") == 0) && (razbijenaF[i + 1].CompareTo("+") == 0 || razbijenaF[i + 1].CompareTo("-") == 0))
+                {
+                    if (razbijenaF[i - 1].CompareTo("+") == 0)
+                    {
+                        c = c - a;
+                    }
+                    if (razbijenaF[i - 1].CompareTo("-") == 0)
+                    {
+                        c = c + a;
+                    }
+                    razbijenaF[i] = "";
+                    razbijenaF[i - 1] = "";
+                }
+            }
+
+            razbijenaF[razbijenaF.Length - 1] = c.ToString();
+
+            formula = "";
+            formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
+
+            // eliminacija zagraada nepotrebnih
+
+            razbijenaF = formula.Split(' ');
+            c = double.Parse(razbijenaF[razbijenaF.Length - 1]);
+
+            for (int i = 1; i < razbijenaF.Length - 1; i++)
+            {
+
+                A = double.TryParse(razbijenaF[i],out a);
+
+                if(A && razbijenaF[i-1].CompareTo("(") == 0 && razbijenaF[i + 1].CompareTo(")") == 0)
+                {
+                    razbijenaF[i - 1] = "";
+                    razbijenaF[i + 1] = "";
+                }
+                
+            }
+
+            formula = "";
+            formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
+        }
+
+        static void formulaMod2(ref string formula)
+        {
+            string[] razbijenaF = formula.Split(' ');
+
+            bool A;
+            bool B;
+            double a = 0;
+            double b = 0;
+            double c = 0;
+            int konZ = 0;
+
+            c = 1;
+            a = 1;
+            b = 1;
+            for (int i = 0; i < razbijenaF.Length; i++)
+            {
+
+                if (razbijenaF[i].CompareTo("/") == 0) 
+                {
+                    a = double.Parse(razbijenaF[i+1]);
+                }
+
+                c = (a > b) ? a : b;
+                while (true)
+                {
+                    if(c % a == 0 && c % b == 0)
+                    {
+                        break;
+                    }
+                    c++;
+                }
+                b = c;
+
+            }
+
+            for (int i = 0; i < razbijenaF.Length; i++)
+            {
+
+                if (razbijenaF[i].CompareTo("/") == 0)
+                {
+                    a = double.Parse(razbijenaF[i + 1]);
+
+                    b = c / a;
+                    razbijenaF[i] = "*";
+                    razbijenaF[i + 1] = b.ToString();
+                }
+
+            }
+
+            a = double.Parse(razbijenaF[razbijenaF.Length - 1]);
+            b = a * c;
+            razbijenaF[razbijenaF.Length - 1] = b.ToString();
+
+
+
+            for (int i = 0; i < razbijenaF.Length; i++)
+            {
+
+                if (razbijenaF[i].CompareTo("*") == 0)
+                {
+                    a = double.Parse(razbijenaF[i + 1]);
+
+                    if (a == 1)
+                    {
+                        razbijenaF[i] = "";
+                        razbijenaF[i + 1] = "";
+                    }
+                   
+                }
+
+            }
+
+
+            formula = "";
+            formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
+
+            int ida = 0;
+            int idb = 0;
+
+            razbijenaF = formula.Split(' ');
+
+            for (int i = 0; i < razbijenaF.Length; i++)
+            {
+                if (razbijenaF[i].CompareTo("(") == 0)
+                {
+                    ida = i;
+                }
+                if (razbijenaF[i].CompareTo(")") == 0)
+                {
+                    idb = i;
+                    if (razbijenaF[i + 1].CompareTo("*") == 0)
+                    {
+                        a = double.Parse(razbijenaF[i + 2]);
+                        for (int j = ida+1;j < idb; j++)
+                        {
+                            B = double.TryParse(razbijenaF[j], out b);
+                            if (!(razbijenaF[j].CompareTo("+") == 0 || razbijenaF[j].CompareTo("-") == 0))
+                            {
+                                if (B)
+                                {
+                                    c = a * b;
+                                    razbijenaF[j] = c.ToString();
+                                }
+                                else
+                                {
+                                    razbijenaF[j] = a.ToString() + " * " + razbijenaF[j];
+                                }
+                            }
+                        }
+
+                        razbijenaF[i + 1] = "";
+                        razbijenaF[i + 2] = "";
+
+                    }
+                }
+               
+
+            }
+
+
+            formula = "";
+            formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
+
+        }
+
+        static void formulaMod3(ref string formula)
+        {
+            string[] razbijenaF = formula.Split(' ');
+
+            bool A;
+            bool B;
+            bool M = false;
+            double a = 0;
+            double b = 0;
+            double c = 0;
+            int konZ = 0;
+
+            int ida = 0;
+            int idb = 0;
+
+            c = 1;
+            a = 1;
+            b = 1;
+            for (int i = 0; i < razbijenaF.Length; i++)
+            { 
+                if (razbijenaF[i].CompareTo("(") == 0)
+                {
+                    ida = i;
+                    if (i != 0)
+                    {
+                        M = razbijenaF[i-1].CompareTo("-") == 0;
+                     
+                    }
+                }
+                if (razbijenaF[i].CompareTo(")") == 0)
+                {
+                    idb = i;
+                    if (M)
+                    {
+                        for (int j = ida;j < idb; j++)
+                        {
+                            if (razbijenaF[j].CompareTo("+") == 0)
+                            {
+                                razbijenaF[j] = "-";
+                            }else if (razbijenaF[j].CompareTo("-") == 0)
+                            {
+                                razbijenaF[j] = "+";
+                            }
+                            
+
+                        }
+                    }
+                }
+            }
+
+            for(int i = 0; i < razbijenaF.Length; i++)
+            {
+                if (razbijenaF[i].CompareTo("(") == 0 || razbijenaF[i].CompareTo(")") == 0)
+                {
+                    razbijenaF[i] = "";
+                }
+            }
+
+
+            formula = "";
+            formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
+
+
+        }
+
+        static void formulaMod4(ref string formula,int brF)
+        {
+            string[] razbijenaF = formula.Split(' ');
+
+            bool A;
+            bool B;
+            bool M = false;
+            double a = 0;
+            double b = 0;
+            double c = 0;
+            int konZ = 0;
+
+            int ida = 0;
+            int idb = 0;
+
+            c = 1;
+            a = 1;
+            b = 1;
+
+            c = 0;
+
+            for (int i = 1; i < razbijenaF.Length; i++)
+            {
+                if (i != razbijenaF.Length - 1)
+                {
+                    A = double.TryParse(razbijenaF[i], out a);
+                    if (A && (razbijenaF[i - 1].CompareTo("+") == 0 || razbijenaF[i - 1].CompareTo("-") == 0)
+                        && (razbijenaF[i + 1].CompareTo("+") == 0 || razbijenaF[i + 1].CompareTo("-") == 0))
+                    {
+                        razbijenaF[i] = "";
+                        if (razbijenaF[i - 1].CompareTo("-") == 0)
+                        {
+                            c = c + a;
+                        }
+                        else
+                        {
+                            c = c - a;
+                        }
+                        razbijenaF[i - 1] = "";
+                    }
+                }
+                else
+                {
+                    A = double.TryParse(razbijenaF[i], out a);
+                    if (A && (razbijenaF[i - 1].CompareTo("+") == 0 || razbijenaF[i - 1].CompareTo("-") == 0))
+                    {
+                        razbijenaF[i] = "";
+                        if (razbijenaF[i - 1].CompareTo("-") == 0)
+                        {
+                            c = c + a;
+                        }
+                        else
+                        {
+                            c = c - a;
+                        }
+                        razbijenaF[i - 1] = "";
+                    }
+                }
+            }
+
+            razbijenaF[razbijenaF.Length - 1] = c.ToString();
+
+            formula = "";
+            formula = string.Join(" ", razbijenaF.Where(x => !string.IsNullOrEmpty(x)));
+
+
+           razbijenaF = formula.Split(' ');
+
+
+            string privremeni;
+            string[] promenjive = formula.Split(' ');
+            promenjive[promenjive.Length - 1] = "";
+            promenjive[promenjive.Length - 2] = "";
+
+            for (int i = 0; i < promenjive.Length-2; i++)
+            {
+                A = double.TryParse(promenjive[i], out a);
+                if (A || promenjive[i].CompareTo("+") == 0 || promenjive[i].CompareTo("-") == 0 || promenjive[i].CompareTo("*") == 0)
+                {
+                    promenjive[i] = "";
+                }
+            }
+
+            int polozaj = 0;
+
+            List<string> lsStringova = promenjive.Distinct().ToList();
+            promenjive = lsStringova.ToArray();
+
+            formula = "0 + " + formula;
+            razbijenaF = formula.Split(' ');
+
+            privremeni = "";
+            privremeni = string.Join(" ", promenjive.Where(x => !string.IsNullOrEmpty(x)));
+
+            promenjive = privremeni.Split(' ');
+
+            double[] koeficijenti = new double[promenjive.Length];
+
+            for (int j = 0; j < promenjive.Length; j++)
+            {
+                koeficijenti[j] = 0;
+            }
+
+            for (int i = 0;i < razbijenaF.Length-2; i++)
+            {
+                A = double.TryParse(razbijenaF[i], out a);
+                if (A || razbijenaF[i].CompareTo("+") == 0 || razbijenaF[i].CompareTo("-") == 0 || razbijenaF[i].CompareTo("*") == 0)
+                {
+
+                }
+                else
+                {
+                    for(int j = 0; j < promenjive.Length; j++)
+                    {
+                        
+                        if (razbijenaF[i].CompareTo(promenjive[j]) == 0) polozaj = j;
+                    }
+
+                    if (razbijenaF[i-1].CompareTo("*") == 0)
+                    {
+                        b = double.Parse(razbijenaF[i - 2]);
+
+                        if (razbijenaF[i - 3].CompareTo("+") == 0)
+                        {
+                            koeficijenti[polozaj] += b;
+                        }
+                        if (razbijenaF[i - 3].CompareTo("-") == 0)
+                        {
+                            koeficijenti[polozaj] -= b;
+                        }
+                    }
+                    else
+                    {
+                        if (razbijenaF[i - 1].CompareTo("+") == 0)
+                        {
+                            koeficijenti[polozaj]++;
+                        }
+                        if (razbijenaF[i - 1].CompareTo("-") == 0)
+                        {
+                            koeficijenti[polozaj]--;
+                        }
+                    }
+                }
+            }
+            formula = "";
+            for (int i = 0; i < koeficijenti.Length; i++)
+            {
+                if (koeficijenti[i] >= 0)
+                {
+                    if (formula.CompareTo("") != 0)
+                    {
+                        formula = formula + "+ ";
+                    }
+                    else
+                    {
+                        formula = formula + "+ ";
+                    }
+                    formula = formula + koeficijenti[i].ToString() + " * " + promenjive[i] + " ";
+                }
+                else
+                {
+                    formula = formula +"- " + Math.Abs(koeficijenti[i]).ToString() + " * " + promenjive[i] + " ";
+                }
+            }
+
+            formula = formula + "= " + razbijenaF[razbijenaF.Length-1];
+
+        }//
 
     }
 
@@ -1413,11 +1905,11 @@ namespace Kolomat
                 {
                     if (brc > 0)
                     {
-                        a = a + "0A";
+                        a = a + "0";
                     }
                     else
                     {
-                        a = a + I + "A";
+                        a = a + I + "";
                     }
                 }
 
@@ -1465,11 +1957,11 @@ namespace Kolomat
                 {
                     if (brc > 0)
                     {
-                        a = a + "0A";
+                        a = a + "0";
                     }
                     else
                     {
-                        a = a + I + "A";
+                        a = a + I + "";
                     }
                 }
             }

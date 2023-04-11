@@ -18,11 +18,13 @@ Opis projekta nalazi se u prilozenom .PDF fajlu
 
  ------------------------------------------------------------------------------------------------
 
-Trenutno inplementirano
+Trenutno inplementirano :
 
--klasa tipa komponenta
--klasa tipa tacka 
--klasa tipa grana
+      -klasa tipa komponenta
+ 
+      -klasa tipa tacka 
+
+      -klasa tipa grana
 
 trenutno inplementirane funkcionalnosti
 
@@ -69,3 +71,13 @@ trenutno inplementirane funkcionalnosti
         + Formule po MPC sa uvrstenim brojnim vrjednostima koje su poznate
 
 ------------------------------ 10/04/2023 16:00 BETA V.7 ----------------------------------------
+
+-  Implementirane 4 nove funkcije koje obradjuju izgled formula po cvorovima u 4 kruga obrade
+   tako da se korisniku ispisuje postepeno razradjivanje i resavanje sistema jednacina
+   pa se od polaznih jednacina npr "I1 - I2 + I3 = 0" dodje do " 2 * V1 - 4 * V4 = 10"
+-  Ispravljen niz gresaka na vec napisanim funkcijama 
+-  Potpuno kreiran ispis formula ( Isti je trenutno malo netacan samo iz razloga jer nije implementirana
+                                   funkcija koja granama sa Idealnim strujnim generatorom odredjuje I
+                                    ono je za potrebe testa trenutno 0)
+
+------------------------------ 11/04/2023 12:05 BETA V.8 -----------------------------------------
