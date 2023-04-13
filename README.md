@@ -89,3 +89,13 @@ trenutno inplementirane funkcionalnosti
 - !!! IMPLEMENTIRANA FUNKCIJA KOJA RJESAVA SISTEM JEDNACINA i ispisuje resenja istih
 
 ------------------------------ 11/04/2023 21:30 ALFA V.1 ------------------------------------
+
+- Popravljeni bagovi prilikom ucitavanja datoteka (ispravljene potencionalne greske)
+- Redizajnirana funkcija za ucitavanje u skladu sa specifikacijama
+- Otkolonjeni manji bagovi na funkciji za ispis formula
+- Inplementirana funkcija koja odredjuje struju u svim djelovima kola 
+- Popravljene greske kod funkcije za trazenje jacine struje u granama sa idealnim naponskim generatorom
+- Kod podeljen po datotekama radi vece preglednosti
+- Svaka klasa izdvojena u posebnu datoteku
+
+------------------------------ 14/04/2023 00:10 ALFA V.2 ------------------------------------------
