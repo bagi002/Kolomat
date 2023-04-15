@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,17 @@ namespace Kolomat
 
         double vrednost = -1;
 
+        public tacka SuprotniCvor(tacka test)
+        {
+            tacka povratna = null;
+
+            if (test == ak) 
+            { 
+                povratna = bk; 
+            }else if (test == bk) povratna = ak;
+
+            return povratna;
+        }//vraca cvor suprotan od onog datog kao argumenta funkcije
         public double vratPodatak(int tst) 
         {
             double x = 0;
@@ -241,16 +253,19 @@ namespace Kolomat
 
         public void promenaVeze(tacka nova, tacka stara) // azurira veze date komponente sve stare veze zamjeni novim
         {
-            if (ak == stara)
-            {
-                ak = nova;
-                a = nova.id;
-            }
-            if (bk == stara)
-            {
-                bk = nova;
-                b = nova.id;
-            }
+         // if (tip.CompareTo("W") != 0)
+          //  {
+                if (ak == stara)
+                {
+                    ak = nova;
+                    a = nova.id;
+                }
+                if (bk == stara)
+                {
+                    bk = nova;
+                    b = nova.id;
+                }
+          //  }
 
         }
 
@@ -494,6 +509,127 @@ namespace Kolomat
 
             return x;
         }//vraca 1 ako je smer grane date komponente iz te tacke ako je u tu tacku onda vrati -1
+
+        public double odrediNapon(tacka izlazna) //vraca napon ili ti pad ili rast napona date komponente
+        {
+            double x = 0;
+            if (tip.CompareTo("R") == 0)
+            {
+                U = vrednost * I;
+                x = -U;
+
+            }
+            if (tip.CompareTo("E") == 0)
+            {
+                U = vrednost; 
+                if(ak == izlazna)
+                {
+                    x = U;
+                }
+                if (bk == izlazna)
+                {
+                    x = -U;
+                }
+            }
+            return x;
+        }
+
+        public int proveraTipa(string test)
+        {
+            int x = 0;
+
+            if(test.CompareTo(tip) == 0)
+            {
+                x = 1;
+            }
+
+            return x;
+        }//vraca 1 ako se tip poklapa sa test stringom
+
+        public void OdredjivanjeNaponaSnage()//odredi napon i snagu komponente
+        {
+
+            U = ak.vratiPodatak(1) - bk.vratiPodatak(1);
+            P = U * I;
+
+        }
+
+        public void Energija()
+        {
+            if (tip.CompareTo("C") == 0)
+            {
+                P = 0.5 * U * U * vrednost;
+            }
+        } // odredjuje energiju kondezatora za smestanje vrednosti koristiti polje za snagu ostalih komponenata
+
+        public void ispisNapona() // Ispisi napon date komponente
+        {
+
+            string promenjiva = "";
+            if (tip.CompareTo("R") == 0) promenjiva = "Otporniku";
+            if (tip.CompareTo("E") == 0) promenjiva = "Naponskom generatoru";
+            if (tip.CompareTo("IS") == 0) promenjiva = "Strujnom generatoru";
+            if (tip.CompareTo("C") == 0) promenjiva = "Kondezatoru";
+
+            if (tip.CompareTo("W") != 0 && n != 0)
+            {
+                Console.WriteLine(" Napon na {0} {1}{2} je : {3:0.000} V", promenjiva, tip, n, Math.Abs(U));
+            }
+            if (tip.CompareTo("W") != 0 && n == 0)
+            {
+                Console.WriteLine(" Napon na {0} {1}{2} je : {3:0.000} V", promenjiva, tip, "", Math.Abs(U));
+            }
+
+        }
+
+        public void ispisSnaga() // Ispisi snagu date komponente
+        {
+
+            string promenjiva = "";
+            if (tip.CompareTo("R") == 0) promenjiva = "Otpornika";
+            if (tip.CompareTo("E") == 0) promenjiva = "Naponskog generatora";
+            if (tip.CompareTo("IS") == 0) promenjiva = "Strujnog generatora";
+            
+
+            if (tip.CompareTo("W") != 0 && tip.CompareTo("C") != 0 && n != 0)
+            {
+                Console.WriteLine(" Snaga {0} {1}{2} je : {3:0.000} W", promenjiva, tip, n, Math.Abs(P));
+            }
+            if (tip.CompareTo("W") != 0 && tip.CompareTo("C") != 0 && n == 0)
+            {
+                Console.WriteLine(" Snaga {0} {1}{2} je : {3:0.000} W", promenjiva, tip, "", Math.Abs(P));
+            }
+
+        }
+
+        public void energijaKondezatora()
+        {
+            double a = P;
+            string vel = "J";
+            if (P < 0.01)
+            {
+                a = a * 1000;
+                vel = "mJ";
+            }
+
+            if (tip.CompareTo("C") == 0 && n != 0)
+            {
+                Console.WriteLine(" Energika kondezatora {0}{1} je : {2:0.000} {3}",tip, n, Math.Abs(a),vel);
+            }
+            if (tip.CompareTo("C") == 0 && n == 0)
+            {
+                Console.WriteLine(" Energija kondezatora {0}{1} je : {2:0.000} {3}", tip, "", Math.Abs(a),vel);
+            }
+
+        }// za kondezator ispise enrgiju
+
+        public void PotencijaliZice()
+        {
+            if(tip.CompareTo("W") == 0) 
+            {
+                ak.PotencijalKrajaZice(bk);
+            }
+        } //regulise potencijale na tackama spojenim zicom
     }
 
 }

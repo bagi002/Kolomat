@@ -5,6 +5,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Xml.Linq;
 
 
 // smer struje u programu definise se preko klase grana
@@ -32,26 +33,45 @@ namespace Kolomat
 
             error = ucitavanjePodataka(ref element, ref n);
 
-            Console.WriteLine(error);
-            Console.WriteLine(n);
+            //Console.WriteLine(error);
+          //  Console.WriteLine(n);
          
-            if (error == 0) testiranje1(n, element);
+           // if (error == 0) testiranje1(n, element);
          
 
             if(error == 0) error = proveraPon(n, element);
             if(error == 0) error = dodavanjeTacaka(ref nT,ref tacke,n,element);
-            if(error == 0) ispisTacakaTest(tacke, nT);
+          //  if(error == 0) ispisTacakaTest(tacke, nT); //test
             if(error == 0) uklanjanjeViskaCvorova(ref element,n);
-            if (error == 0) ispisTacakaTest(tacke, nT);
+          //  if (error == 0) ispisTacakaTest(tacke, nT); // test
             if (error == 0) setovanjeCvorova(tacke, nT);
+            if (error == 0) JednostavnoKolo(tacke);
             if (error == 0) error = proveraKonekcija(tacke, nT);
             if (error == 0) error = proveraElemenata2(element,n);
             if (error == 0) kreiranjeGrana(tacke, nT, ref grane, ref nG,element);
-            if (error == 0) ispisGrana(grane, nG);
+           // if (error == 0) ispisGrana(grane, nG); //test
             if (error == 0) RefPozC(grane, nG,tacke,nT);
-            if (error == 0) ispisFormulaMPC(tacke, nT, grane, nG);
+            
+
+            if (error == 0)
+            {
+                Console.WriteLine("Ucitavanje uspjesno zavrseno ... \n" +
+                                  "!!! Za bolje iskustvo u nastavku prosirite vas terminal preko ekrana !!!\n" +
+                                  "             Pritisnite ENTER da nastavite dalje");
+                Console.ReadLine();
+                Console.Clear();
+            }
+
+            if (error == 0) ispisFormulaMPC(tacke, nT, grane, nG); // ispis formula
+
+
+            // dodatni proracuni u kolu nako ispisa jednacina po MPC
             if (error == 0) error = proveraKola1(grane, tacke);
             if (error == 0) odredjivanjeStrujeKola(grane , element);
+            if (error == 0) odredjivanjePotencijalaKola(grane , element);
+            if (error == 0) NaponSanga(element);
+
+            if (error == 0) meni(grane,element,tacke);
 
 
             if (error == 1) Console.WriteLine("Prekid izvrsavanja usled gore navedene greske !!!!! \n\n\n");
@@ -74,19 +94,20 @@ namespace Kolomat
             }
             if (error == 0)
             {
-                Console.WriteLine("1) Ne postoje dve indenticne komponente u kolu. \n" +
-                    " Svaki element se pojavljuje samo jednom ...");
+                Console.WriteLine("Ne postoje dvije indenticne komponente u kolu. \n" +
+                    " Svaki element se pojavljuje samo jednom ...\n");
             }
             else
             {
                 
-                Console.WriteLine("Postoji greska u zadvanju kola , dve komponente sa \n" +
-                    "identicnim opisom su zadate vise puta , proverite zadato kolo !!!!");
+                Console.WriteLine("Postoji greska u zadvanju kola , dvije komponente sa \n" +
+                    "identicnim opisom su zadate vise puta , proverite zadato kolo !!!!\n\n");
             }
             return error;
         } // proveri da li postoje dve identicne komponente , vrati poruku i kod greske
         static int ucitavanjePodataka(ref komponenta[] element, ref int n)
         {
+            Console.WriteLine("Ucitavanje...");
             int error = 0;
             if (!File.Exists("Kolo.txt"))
             {
@@ -120,6 +141,8 @@ namespace Kolomat
                     element[i] = new komponenta(redovi[i],i);
                 }
 
+                Console.WriteLine("Podaci uspjesno ucitani iz fajla sa specifikacijama ...\n");
+
             }
 
             return error;
@@ -143,7 +166,7 @@ namespace Kolomat
                 elementi[i].uvzivanje(ref tacke, ref nT);
             }
 
-            Console.WriteLine("Kreiranje liste tacaka je uspjesno obavljeno !!!");
+            Console.WriteLine("Kreiranje liste tacaka je uspjesno obavljeno ...\n");
 
             return error;
         }
@@ -159,8 +182,8 @@ namespace Kolomat
                 clanovi[i].izbacivanjeVisaka(ref clanovi);
 
             }
-            Console.WriteLine("Svi potencijalno nepotrebni cvorevi su eliminisani iz kola \n" +
-                " na nacin da su dva cvora spojena kratkospojnikom povezana u jedan");
+            Console.WriteLine("Svi potencijalno nepotrebni cvorovi su eliminisani iz kola \n" +
+                "na nacin da su dva cvora spojena kratkospojnikom povezana u jedan. ... \n");
         }
 
         static void setovanjeCvorova(tacka[] tacke,int nT)
@@ -183,11 +206,11 @@ namespace Kolomat
             if(error != 0)
             {
                 Console.WriteLine("Pronadjena je greska u kolu , postoji ne zatvoren strujni krug !!! \n" +
-                    " Dio kola nije pravilno povezan provjerite to");
+                    " Dio kola nije pravilno povezan provjerite to\n");
             }
             else
             {
-                Console.WriteLine("Strujno kolo je zatvoreno ne postoje prekidi u kolu");
+                Console.WriteLine("Strujno kolo je zatvoreno ne postoje prekidi u kolu ...\n");
             }
 
             return error;
@@ -207,12 +230,12 @@ namespace Kolomat
             if(error != 0)
             {
                 Console.WriteLine("Doslo je do greske !!\n" +
-                    " Postoji komponenta u kratkom spoju sa obje\n" +
-                    " strane spojena na istu tacku.");
+                    "Postoji komponenta u kratkom spoju sa obje\n" +
+                    "strane spojena na istu tacku. \n");
             }
             else
             {
-                Console.WriteLine("Ne postoje komponente sa neispravnim ukljucenjem u kolo!!");
+                Console.WriteLine("Ne postoje komponente sa neispravnim ukljucenjem u kolo ...\n");
             }
 
             return error;
@@ -314,72 +337,81 @@ namespace Kolomat
                 grane[i].strujaPGrane();
             }
 
-            string[] formule = new string[brF];
-
-            for(int i = 0; i < nT; i++)
+            if (brF > 0)
             {
-                tacke[i].FormuleDatiOblik1(nG, grane , ref brojac);
-                if(brojac == brF)
+
+                string[] formule = new string[brF];
+
+                for (int i = 0; i < nT; i++)
                 {
-                    break;
+                    tacke[i].FormuleDatiOblik1(nG, grane, ref brojac);
+                    if (brojac == brF)
+                    {
+                        break;
+                    }
                 }
-            }
-            brojac = 0;
-            Console.WriteLine("-------------------------------------------------------------------");
-            for (int i = 0; i < nT; i++)
-            {
-                tacke[i].FormuleDatiOblik2(nG, grane, ref brojac);
-                if (brojac == brF)
+                brojac = 0;
+                Console.WriteLine("-------------------------------------------------------------------");
+                for (int i = 0; i < nT; i++)
                 {
-                    break;
+                    tacke[i].FormuleDatiOblik2(nG, grane, ref brojac);
+                    if (brojac == brF)
+                    {
+                        break;
+                    }
                 }
-            }
 
-            Console.WriteLine("-------------------------------------------------------------------");
+                Console.WriteLine("-------------------------------------------------------------------");
 
-            brojac = 0;
-            for (int i = 0; i < nT; i++)
-            {
-                tacke[i].FormuleDatiOblik3(nG, grane, ref brojac , ref formule[brojac]);
-                if (brojac == brF)
+                brojac = 0;
+                for (int i = 0; i < nT; i++)
                 {
-                    break;      
+                    tacke[i].FormuleDatiOblik3(nG, grane, ref brojac, ref formule[brojac]);
+                    if (brojac == brF)
+                    {
+                        break;
+                    }
                 }
-            }
-            Console.WriteLine("-------------------------------------------------------------------");
+                Console.WriteLine("-------------------------------------------------------------------");
 
-            for(int i = 0;i < brF; i++)
+                for (int i = 0; i < brF; i++)
+                {
+                    formulaMod(ref formule[i]);
+                    Console.WriteLine(formule[i]);
+                }
+
+                Console.WriteLine("-------------------------------------------------------------------");
+
+                for (int i = 0; i < brF; i++)
+                {
+                    formulaMod2(ref formule[i]);
+                    Console.WriteLine(formule[i]);
+                }
+
+                Console.WriteLine("-------------------------------------------------------------------");
+
+                for (int i = 0; i < brF; i++)
+                {
+                    formulaMod3(ref formule[i]);
+                    Console.WriteLine(formule[i]);
+                }
+
+                Console.WriteLine("-------------------------------------------------------------------");
+
+                for (int i = 0; i < brF; i++)
+                {
+                    formulaMod4(ref formule[i], brF);
+                    Console.WriteLine(formule[i]);
+                }
+
+                Console.WriteLine("-------------------------------------------------------------------");
+                resavanjeJednacina(ref formule, tacke);
+
+            }
+            else
             {
-                formulaMod(ref formule[i]);
-                Console.WriteLine(formule[i]);
+                Console.WriteLine(" -> -> ->  Radi se o jednostavnom kolu pa nije neophodno ispisivanje formula  <- <- <- \n\n");
             }
-
-            Console.WriteLine("-------------------------------------------------------------------");
-
-            for (int i = 0; i < brF; i++)
-            {
-                formulaMod2(ref formule[i]);
-                Console.WriteLine(formule[i]);
-            }
-
-            Console.WriteLine("-------------------------------------------------------------------");
-
-            for (int i = 0; i < brF; i++)
-            {
-                formulaMod3(ref formule[i]);
-                Console.WriteLine(formule[i]);
-            }
-
-            Console.WriteLine("-------------------------------------------------------------------");
-
-            for (int i = 0; i < brF; i++)
-            {
-                formulaMod4(ref formule[i],brF);
-                Console.WriteLine(formule[i]);
-            }
-
-            Console.WriteLine("-------------------------------------------------------------------");
-            resavanjeJednacina(ref  formule ,tacke);
 
         }
 
@@ -884,7 +916,7 @@ namespace Kolomat
             string privremeni = " ";
             for(int i = 0;i < formule.Length;i++)
             {
-                privremeni = " " + formule[i];
+                privremeni =" " + privremeni +" " + formule[i];
             }
 
             string[] promenjive = privremeni.Split(" ");
@@ -893,7 +925,7 @@ namespace Kolomat
             for (int i = 0; i < promenjive.Length - 2; i++)
             {
                 A = double.TryParse(promenjive[i], out a);
-                if (A || promenjive[i].CompareTo("+") == 0 || promenjive[i].CompareTo("-") == 0 || promenjive[i].CompareTo("*") == 0)
+                if (A || promenjive[i].CompareTo("+") == 0 || promenjive[i].CompareTo("-") == 0 || promenjive[i].CompareTo("*") == 0 || promenjive[i].CompareTo("=") == 0)
                 {
                     promenjive[i] = "";
                 }
@@ -939,34 +971,67 @@ namespace Kolomat
                 jednako[i] = double.Parse(formuleR[formuleR.Length-1]);
             }
 
-           
-            for (int i = 0; i < formule.Length - 1; i++)
+            double[] x = new double[formule.Length];
+            int n = formule.Length;
+
+            // Eliminacija
+            for (int k = 0; k < n - 1; k++)
             {
-                for (int j = i + 1; j < formule.Length; j++)
+                int maxRow = k;
+                double maxVal = Math.Abs(koeifcijenti[k, k]);
+                for (int j = k + 1; j < n; j++)
                 {
-                    double factor = koeifcijenti[j, i] / koeifcijenti[i, i];
-                    for (int k = i + 1; k < formule.Length; k++)
+                    if (Math.Abs(koeifcijenti[j, k]) > maxVal)
                     {
-                        koeifcijenti[j, k] -= factor * koeifcijenti[i, k];
+                        maxRow = j;
+                        maxVal = Math.Abs(koeifcijenti[j, k]);
                     }
-                    jednako[j] -= factor * jednako[i];
+                }
+
+                if (maxRow != k)
+                {
+                    // Zamena redova
+                    for (int j = k; j < n; j++)
+                    {
+                        double temp = koeifcijenti[k, j];
+                        koeifcijenti[k, j] = koeifcijenti[maxRow, j];
+                        koeifcijenti[maxRow, j] = temp;
+                    }
+
+                    double temp2 = jednako[k];
+                    jednako[k] = jednako[maxRow];
+                    jednako[maxRow] = temp2;
+                }
+
+                // Eliminacija
+                for (int j = k + 1; j < n; j++)
+                {
+                    double multiplier = koeifcijenti[j, k] / koeifcijenti[k, k];
+                    for (int i = k + 1; i < n; i++)
+                    {
+                        koeifcijenti[j, i] -= multiplier * koeifcijenti[k, i];
+                    }
+                    jednako[j] -= multiplier * jednako[k];
+                    koeifcijenti[j, k] = 0;
                 }
             }
 
-            double[] x = new double[formule.Length];
-            for (int i = formule.Length - 1; i >= 0; i--)
+            // Rešavanje
+            for (int k = n - 1; k >= 0; k--)
             {
                 double sum = 0;
-                for (int j = i + 1; j < formule.Length; j++)
+                for (int j = k + 1; j < n; j++)
                 {
-                    sum += koeifcijenti[i, j] * x[j];
+                    sum += koeifcijenti[k, j] * x[j];
                 }
-                x[i] = (jednako[i] - sum) / koeifcijenti[i, i];
+                x[k] = (jednako[k] - sum) / koeifcijenti[k, k];
             }
+        
 
             for(int i = 0; i < formule.Length;i++)
             {
-                Console.WriteLine(promenjive[i+1] + " = " + x[i].ToString() + "V");   
+               
+                Console.WriteLine("{0} = {1:0.000} V", promenjive[i + 1], x[i]);
             }
 
             setovanjeNaponaCvorovima(x, promenjive, formule.Length, tacke);
@@ -1049,5 +1114,202 @@ namespace Kolomat
 
             }
         }//odredjuje sve struje u kolu
+
+        static void ispisStrujaGrane(grana[] grane)
+        {
+            Console.WriteLine("------------------------------------------------------------------------\n" +
+                              "------------------    Jacine struje u kolu    --------------------------\n" +
+                              "------------------------------------------------------------------------\n");
+            for(int i = 0; i <grane.Length; i++)
+            {
+                grane[i].IspisStruje();
+            }
+        }//ispisuje struju u svim granama u kolu
+
+        static void odredjivanjePotencijalaKola(grana[] grane, komponenta[] komponente)
+        {
+            for(int i = 0; i < grane.Length; i++)
+            {
+                grane[i].naponKrozGranu();
+            }
+
+            for(int i = 0; i < komponente.Length; i++)
+            {
+                komponente[i].PotencijaliZice();
+            }
+
+
+        }//odredjivanje potencijala u svim tackama kola
+
+        static void NaponSanga(komponenta[] komponente)
+        {
+            for( int i = 0;i < komponente.Length; i++)
+            {
+                komponente[i].OdredjivanjeNaponaSnage();
+                komponente[i].Energija();
+            }
+        }//odredjuje napon, snagu, energiju komponenti u kolu
+
+        static void IspisNaponaKomponenata(komponenta[] komponente)
+        {
+            Console.WriteLine("------------------------------------------------------------------------\n" +
+                              "-----------------    Naponi komponenata u kolu    ----------------------\n" +
+                              "------------------------------------------------------------------------\n\n");
+
+            for (int i = 0; i < komponente.Length; i++)
+            {
+                komponente[i].ispisNapona();
+            }
+        }// Ispisuje napone na komponentama
+
+        static void IspisSanagaKomponenata(komponenta[] komponente)
+        {
+            Console.WriteLine("------------------------------------------------------------------------\n" +
+                              "----------------    Snaga komponenata u kolu    ------------------------\n" +
+                              "------------------------------------------------------------------------\n");
+
+            for (int i = 0; i < komponente.Length; i++)
+            {
+                komponente[i].ispisSnaga();
+            }
+        }// Ispisuje snage na komponentama
+
+        static void IspisEnergijaKon(komponenta[] komponente)
+        {
+
+            Console.WriteLine("------------------------------------------------------------------------\n" +
+                              "----------------    Energije kondezatora u kolu    ---------------------\n" +
+                              "------------------------------------------------------------------------\n");
+
+            for (int i = 0; i < komponente.Length; i++)
+            {
+                komponente[i].energijaKondezatora();
+            }
+        } // za kondezatore ispisuje energije na svakom od njih
+
+        static void naponIzmedjuTacaka(tacka[] tacke)
+        {
+            double a = 0;
+            double b = 0;
+
+            int ida = 0;
+            int idb = 0;
+            int k = 0;
+
+            Console.WriteLine("------------------------------------------------------------------------\n" +
+                              "----------------    Napon izmedju tacaka u kolu    ---------------------\n" +
+                              "------------------------------------------------------------------------\n\n");
+
+            Console.Write("Unesite prvu tacku (ID te tacke) : ");
+            ida = int.Parse(Console.ReadLine());
+            Console.Write("Unesite drugu tacku (ID te tacke) : ");
+            idb = int.Parse(Console.ReadLine());
+
+            for(int i = 0; i < tacke.Length; i++)
+            {
+                if (tacke[i].id == ida)
+                {
+                    a = tacke[i].vratiPodatak(1);
+                    k++;
+                }
+                if (tacke[i].id == idb)
+                {
+                    b = tacke[i].vratiPodatak(1);
+                    k++;
+                }
+            }
+
+            if (k == 2)
+            {
+                Console.WriteLine("\n\n\n Napon izmedju tacke {0} i tacke {1} iznosi {2} V", ida, idb, a - b);
+            }
+            else
+            {
+                Console.WriteLine("\n\n Unesene su nevazece tacke u kolu provjerite unos !!!!!! \n");
+            }
+
+
+        } // ispisuje napon izmedju dve unete tacke
+
+        static void meni(grana[] grane, komponenta[] element, tacka[] tacke)
+        {
+
+            int od = 0;
+
+            while (od != 6)
+            {
+                Console.WriteLine("\n         --------------  MENI  -------------                 \n" +
+                                  "          1. Ispis struja u svim granama kola \n" +
+                                  "          2. Ispis napona na komponentama u kolu \n" +
+                                  "          3. Ispis snaga komponenata u kolu \n" +
+                                  "          4. Ispis energija kondezatora u kolu \n" +
+                                  "          5. Odredjivanje napona izmedju tacaka kola \n" +
+                                  "          6. Izlaz iz programa \n");
+
+                if(int.TryParse(Console.ReadLine(),out od))
+                {
+
+                }
+                else
+                {
+                    od = 0;
+                }
+                
+               
+
+                Console.Clear();
+                switch (od)
+                {
+                    case 1:
+                        ispisStrujaGrane(grane);
+                        break;
+                    case 2:
+                        IspisNaponaKomponenata(element);
+                        break;
+                    case 3:
+                        IspisSanagaKomponenata(element);
+                        break;
+                    case 4:
+                        IspisEnergijaKon(element);
+                        break;
+                    case 5:
+                        naponIzmedjuTacaka(tacke);
+                        break;
+                    case 6:
+                        Console.Clear();
+                        Console.WriteLine(" \n\n\n\n\n\n\n\n" +
+                            "                              Hvala Vam sto ste koristili program KOLOMAT  !!!   \n\n" +
+                            "                        Program je razvijen kao projekat iz Osnova Elektrotehnike \n" +
+                            "                          i sluzi za rjesavanje kola vremenski konstantnih struja \n" +
+                            "                               iz domena zadataka koje dobijaju studenti smjera \n" +
+                            "                                                Racunarstvo i Automatika  \n\n" +
+                            "                                    Autor : Blagoje Milosevic \n" +
+                            "                                           FTN 2023 \n\n\n\n\n\n" +
+                            "                        U slucaju da ste korsitili program a primjetite gresku, \n" +
+                            "                      molim vas da javite na mejl : blagojemilosevic123@gmail.com \n\n");
+                        break;
+                }
+
+                
+            }
+
+        } // meni pristupa funkcionalnostima programa
+
+        static void JednostavnoKolo(tacka[] tacke)
+        {
+            int k = 0;
+            for(int i = 0; i < tacke.Length; i++)
+            {
+                if (tacke[i].CvorProvera() == 1)
+                {
+                    k++;
+                }
+            }
+
+            if(k == 0)
+            {
+                tacke[0].VestackiCvor();
+            }
+        }// popravljanje gresaka za jednostavna kola
     }
 }

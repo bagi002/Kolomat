@@ -9,6 +9,9 @@ Opis projekta nalazi se u prilozenom .PDF fajlu
  Adresa fajla nakon komplairanja u VS "\Kolomat\Kolomat\bin\Debug\net6.0"
  U slucaju greske pisati na mejl blagojemilosevic123@gmail.com)
 
+ ( U .txt fajlu program za demialnu tacku koristi podrazumjevanu na tom racunaru ("." ili "," ) 
+    ako je fajl vec popunjen i koristi se pogresan separator program nece uredno raditi)
+
  Sve funkcionalno zavrsene cjeline u vidu verzija nalaze se odvojeno zipovane
  Tu se ne nalaze kodovi vec sam program izvrsna verzija 
  U datom folderu samo izmjenite .txt fajl u skladu sa specifikacijama i pokrenete .exe fajl koji se tu nalazi
@@ -99,3 +102,21 @@ trenutno inplementirane funkcionalnosti
 - Svaka klasa izdvojena u posebnu datoteku
 
 ------------------------------ 14/04/2023 00:10 ALFA V.2 ------------------------------------------
+
+- Implementirana funkcija koja odredjuje potencijal svake tacke u kolu
+- Implementirana funkcija za odredjivanje napona na komponentama u kolu
+- Implementirana funkcija za racunanje Snage komponenata
+- Implementirana funkcija za racunaje energije kondezatora
+- Implementiran MENI za snalazenje u programu nakon sto dodje do ispisa jednacina
+- Implementirane funkcije za ispis struja , napona , snaga i energija
+- Ispravljen bag kod racunanja potencijala za grane sa strujnim generatorom
+- Implementirana funkcija za odredjivanje napona izmedju dve tacke u kolu
+- Popravljeni neki ispisi
+- popravljena greska kod dve tacke vezane zicom
+- zavrsene sve planirane stavke zahtjevane specifikacijom
+- Implementirana funkcija za ispravku cvora kod jednostavnih kola bez cvorova
+- Popravljene greske u funkcijama kod rada sa jednostavnim kolima
+- Popravljene greske u resavanju jednacina sa vise od 5 nepoznatih
+- popravljen odredjeni broj greski raznih vrsta ( minor bags)
+
+---------------------------------  15/04/2023 15:00 KOLOMAT V.10  --------------------------------------

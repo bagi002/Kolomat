@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,11 +16,13 @@ namespace Kolomat
     {
         public int id;
         bool cvor = false;
+        bool vestak = false;
         bool poznat = false;
         komponenta[] konekcije = null;
         int nkonekcija = 0;
         double I;
         double V;
+        tacka zamjena = null;
 
         public string krozGranuF3(grana trenutna, tacka uC, int brv)
         {
@@ -302,6 +305,7 @@ namespace Kolomat
         public void spojiSa(tacka druga) //spaja datu tacku sa tackom datom kao argument ,
                                          //na nivou izmene konekcija za novu tacku i broja konekcija date tacke
         {
+            
             int nnovo = nkonekcija + druga.nkonekcija - 2;
             komponenta[] priv = new komponenta[nnovo];
 
@@ -327,6 +331,7 @@ namespace Kolomat
             }
             konekcije = priv;
             nkonekcija = nnovo;
+            druga.zamjena = this;
 
         }
 
@@ -381,9 +386,15 @@ namespace Kolomat
         public double vratiPodatak(int tst) // vraca Napon za 1arg , vraca stuju za 2 kao arg
         {
             double x = 0;
-
-            if (tst == 1) x = V;
-            if (tst == 2) x = I;
+            if (nkonekcija != 0)
+            {
+                if (tst == 1) x = V;
+                if (tst == 2) x = I;
+            }
+            else
+            {
+               x = zamjena.vratiPodatak(tst);
+            }
 
             return x;
         }
@@ -505,6 +516,16 @@ namespace Kolomat
                     break;
                 }
             }
+             a = a + prateca.vratiNaponE(ref privremena);
+            if(privremena.konekcije[0] == prateca)
+                {
+                prateca = privremena.konekcije[1];
+
+            }
+                else
+            {
+                prateca = privremena.konekcije[0];
+            }
 
             while (trenutna.proveraKraja(privremena) != 1)
             {
@@ -545,6 +566,18 @@ namespace Kolomat
                 }
             }
 
+            a = a + prateca.vratiOtporR(ref privremena);
+
+            if (privremena.konekcije[0] == prateca)
+            {
+                prateca = privremena.konekcije[1];
+
+            }
+            else
+            {
+                prateca = privremena.konekcije[0];
+            }
+
             while (trenutna.proveraKraja(privremena) != 1)
             {
 
@@ -581,6 +614,69 @@ namespace Kolomat
 
             return a;
         }
+
+        public void predjiPrekoKomponente(ref tacka sledeca,ref komponenta predjena,grana pregledana,ref double stariPotecijal)
+        {
+            if (nkonekcija > 2 || vestak)
+            {
+                for (int i = 0; i < nkonekcija; i++)
+                {
+                    if (konekcije[i].proveraPripadnostiGrani(pregledana) == 1)
+                    {
+
+                        predjena = konekcije[i];
+                        sledeca = predjena.SuprotniCvor(this);
+                    }
+                }
+            }
+            else
+            {
+                if (predjena == konekcije[0])
+                {
+                    predjena = konekcije[1];
+
+                }
+                else if (predjena == konekcije[1])
+                {
+                    predjena = konekcije[0];
+                }
+
+                sledeca = predjena.SuprotniCvor(this);
+            }
+            stariPotecijal = V;
+        }//predji preko komponente koja je vezana na dati cvor vrati sledeci cvor i javi vezu na komponentu
+
+        public void setovanjeTacaka (double x, double y,double z)
+        {
+            if (!poznat)
+            {
+                V = x + y;
+                poznat = true;
+                I = z;
+            }
+        }//setuje tacku na poznate dobavljene vrjednosti
+
+        public void PotencijalKrajaZice(tacka druga)
+        {
+            if(this.poznat)
+            {
+                druga.poznat = true;
+                druga.V = this.V;
+            }
+            else
+            {
+                this.poznat = true;
+                this.V = druga.V;
+            }
+        }// fija za odredjivanje tacke suprotne poznatoj na zici
+
+        public void VestackiCvor()
+        {
+            cvor = true;
+            vestak = true;
+            
+        } // vestacki setuje tacku na cvor , tretira se kao vestacki cvor ubuduce
+
     }
 
 }

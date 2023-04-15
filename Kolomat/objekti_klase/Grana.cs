@@ -146,7 +146,7 @@ namespace Kolomat
 
                 for (int i = 0; i < brv; i++)
                 {
-                    izC.SetPoznati(uC, this,0);
+                    izC.SetPoznati(uC, this, 0);
                 }
 
             }
@@ -356,11 +356,11 @@ namespace Kolomat
 
             double V = 0;
 
-            if((uC.jePoznat() == 1 && izC.jePoznat() != 1) || (uC.jePoznat() != 1 && izC.jePoznat() == 1))
+            if ((uC.jePoznat() == 1 && izC.jePoznat() != 1) || (uC.jePoznat() != 1 && izC.jePoznat() == 1))
             {
-                if(this.akoIdealna() == 1)
+                if (this.akoIdealna() == 1)
                 {
-                    if(uC.jePoznat() == 1)
+                    if (uC.jePoznat() == 1)
                     {
                         V = uC.vratiPodatak(1);
                         izC.SetPoznati(uC, this, V);
@@ -379,14 +379,14 @@ namespace Kolomat
         public void StrujaGrane()
         {
             I = 0;
-            
-            if(bri > 0)
+
+            if (bri > 0)
             {
 
             }
             else
             {
-                if(brc > 0)
+                if (brc > 0)
                 {
                     I = 0;
                 }
@@ -401,7 +401,7 @@ namespace Kolomat
                     R += uC.krozGranuOtpor(this, uC);
 
                     I = U / R;
-                    
+
 
                 }
 
@@ -422,18 +422,110 @@ namespace Kolomat
 
             }
 
-        }
+        }// odredjuje jacinu struje u grani sa samo naponskim generatorima
 
         public int CvorTest(tacka provera)
         {
             int x = 0;
 
-            if(provera == uC) x = 1;
-            if(provera == izC) x = -1;
+            if (provera == uC) x = 1;
+            if (provera == izC) x = -1;
 
             return x;
-        }
-        
-    }
+        } // vraca 1 ako je provera == uC a -1 == izC , vraca 0 ako nema poklapanja
 
+        public void IspisStruje() // nakonzoli ispisuje struju u grani uz osnovne podatke o grani
+        {
+            double a = I;
+            if (I > 0.05)
+            {
+                Console.WriteLine("Jacina struje u grani {0} iznosi {1:0.000} A \n" +
+                                  " Grana iz cvora {2} u cvor {3} \n", id, a, uC.id, izC.id);
+            }
+            else
+            {
+                a = a * 1000;
+                Console.WriteLine("Jacina struje u grani {0} iznosi {1:0.000} mA \n" +
+                                 " Grana iz cvora {2} u cvor {3} \n", id, a, uC.id, izC.id);
+            }
+
+        }
+
+        public void naponKrozGranu()//setuje potencijale tacaka izmedju dva cvora dok prolazi kroz granu
+        {
+            if (bri == 0 && brc == 0)
+            {
+                double V = 0;
+                tacka privremena = uC;
+                komponenta trenutna = null;
+                privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this,ref V);
+                while (privremena != izC)
+                {
+
+                    privremena.setovanjeTacaka(V, trenutna.odrediNapon(privremena),I);
+
+                    privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this, ref V);
+                }
+            }
+            if (brc > 0)
+            {
+                double V = 0;
+                tacka privremena = uC;
+                komponenta trenutna = null;
+                privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this, ref V);
+                while (privremena == izC)
+                {
+                    if (trenutna.proveraTipa("C") == 1) 
+                    { 
+                        V = izC.vratiPodatak(1); 
+                    }
+
+                    privremena.setovanjeTacaka(V, 0,0);
+
+                    privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this, ref V);
+                }
+            }
+            if (bri > 0)
+            {
+                
+                double V = 0;
+                tacka privremena = uC;
+                komponenta trenutna = null;
+                privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this, ref V);
+                while (true)
+                {
+                    
+                    if (trenutna.proveraTipa("IS") == 1)
+                    {
+                        break;
+                    }
+                    privremena.setovanjeTacaka(V, trenutna.odrediNapon(privremena), I);
+
+                    
+
+
+                    privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this, ref V);
+                }
+
+
+
+                V = 0;
+                privremena = izC;
+                trenutna = null;
+                privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this, ref V);
+                while (true)
+                {
+                    if (trenutna.proveraTipa("IS") == 1)
+                    {
+                        break;
+                    }
+                    privremena.setovanjeTacaka(V, trenutna.odrediNapon(privremena), I);
+
+                    privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this, ref V);
+                }
+            }
+        }
+
+
+    }
 }
