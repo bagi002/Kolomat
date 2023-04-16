@@ -203,13 +203,13 @@ namespace Kolomat
         public void SetPoznati(tacka uC, grana ta,double a)
         {
             V = a;
-            tacka privremena = uC;
+            tacka privremena = this;
             poznat = true;
             komponenta prethodna;
 
             for (int i = 0; i < nkonekcija; i++)
             {
-                if (privremena == uC)
+                if (konekcije[i].proveraPripadnostiGrani(ta) == 1)
                 {
                     V += konekcije[i].NaponIdealGrana(ref privremena, ta);
                     prethodna = konekcije[i];

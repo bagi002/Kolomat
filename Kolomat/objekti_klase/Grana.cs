@@ -141,13 +141,13 @@ namespace Kolomat
                 uC.SetReferent();
                 id = m;
 
-                int Napon = 0;
-                tacka pristupna = uC;
+              //  int Napon = 0;
+              //  tacka pristupna = uC;
 
-                for (int i = 0; i < brv; i++)
-                {
+               // for (int i = 0; i < brv; i++)
+             //   {
                     izC.SetPoznati(uC, this, 0);
-                }
+             //   }
 
             }
 

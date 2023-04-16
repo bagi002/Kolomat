@@ -120,3 +120,8 @@ trenutno inplementirane funkcionalnosti
 - popravljen odredjeni broj greski raznih vrsta ( minor bags)
 
 ---------------------------------  15/04/2023 15:00 KOLOMAT V.10  --------------------------------------
+
+- ispravljen mali bag kod setovanja referentnog cvora ( Greska se javljala kod grana sa 
+                                              visenaponskih generatora u idealnoj naponskoj grani)
+
+----------------------------------  16/04/2023 20:40 KOLOMAT V.11  --------------------------------------

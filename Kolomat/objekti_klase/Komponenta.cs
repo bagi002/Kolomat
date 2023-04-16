@@ -339,12 +339,11 @@ namespace Kolomat
 
                 if (pristupna == ak && x == 0)
                 {
-                    x = -U;
-                    pristupna = bk;
-                }
-                if (pristupna == bk && x == 0)
-                {
                     x = U;
+                    pristupna = bk;
+                }else if (pristupna == bk && x == 0)
+                {
+                    x = -U;
                     pristupna = ak;
                 }
 
