@@ -341,7 +341,8 @@ namespace Kolomat
                 {
                     x = U;
                     pristupna = bk;
-                }else if (pristupna == bk && x == 0)
+                }
+                else if (pristupna == bk && x == 0)
                 {
                     x = -U;
                     pristupna = ak;

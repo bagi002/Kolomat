@@ -407,10 +407,10 @@ namespace Kolomat
             return x;
         }//vraca 1 ako je dati cvor poznat
 
-        public void FormuleDatiOblik1(int nG, grana[] grane, ref int brojac)
+        public string FormuleDatiOblik1(int nG, grana[] grane, ref int brojac)
         {
 
-            string formula = "";
+            string formula = " ";
             int ni = 0;
 
             if (cvor && !poznat)
@@ -425,11 +425,15 @@ namespace Kolomat
 
                 Console.WriteLine("  Cvor {0} :", id);
                 Console.WriteLine("              " + formula);
+
+                
             }
+
+            return formula;
 
         }// za dati cvor ako zadovoljava uslove ispisuje formulu prvog nivoa odnosno prvi kirkofov zakon za cvorove
 
-        public void FormuleDatiOblik2(int nG, grana[] grane, ref int brojac)
+        public string FormuleDatiOblik2(int nG, grana[] grane, ref int brojac)
         {
 
             string formula = "";
@@ -449,10 +453,12 @@ namespace Kolomat
                 Console.WriteLine("              " + formula);
             }
 
+            return formula;
+
         }// za dati cvor ispise odgovarajucu formulu po MPC
 
 
-        public void FormuleDatiOblik3(int nG, grana[] grane, ref int brojac, ref string formula)
+        public string FormuleDatiOblik3(int nG, grana[] grane, ref int brojac, ref string formula)
         {
 
             formula = "";
@@ -472,11 +478,13 @@ namespace Kolomat
                 Console.WriteLine("              " + formula);
             }
 
+            return formula;
+
         }// za dati cvor ispise odgovarajucu formulu po MPC
 
         public void setovanjeNapona(string x, double vr)
         {
-            if (cvor)
+            if (cvor && !poznat)
             {
                 string xa = "";
                 int a = 0;

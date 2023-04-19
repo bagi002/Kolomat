@@ -125,3 +125,11 @@ trenutno inplementirane funkcionalnosti
                                               visenaponskih generatora u idealnoj naponskoj grani)
 
 ----------------------------------  16/04/2023 20:40 KOLOMAT V.11  --------------------------------------
+
+- dodat ispis svih tacaka dostupnih u kolu kod funkcije za ispis napona 
+  izmedju dvije trazene tacke u kolu
+- dodata mogucnost da se u bilo kom trenutku u programu ponovo ispisu
+  formule po MPC ( dodata nova fija modifikovana fija za postavljanje i resavanje kola)
+- small bug Fix
+
+----------------------------------  19/04/2023 13:00 KOLOMAT V1.2  --------------------------------------

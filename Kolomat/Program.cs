@@ -26,9 +26,9 @@ namespace Kolomat
             int nT = 0;
 
             grana[] grane = null;
-            int nG = 0; 
+            int nG = 0;
 
-
+            string[,] jednacine = null;
 
 
             error = ucitavanjePodataka(ref element, ref n);
@@ -62,7 +62,7 @@ namespace Kolomat
                 Console.Clear();
             }
 
-            if (error == 0) ispisFormulaMPC(tacke, nT, grane, nG); // ispis formula
+            if (error == 0) ispisFormulaMPC(tacke, nT, grane, nG, ref jednacine); // ispis formula
 
 
             // dodatni proracuni u kolu nako ispisa jednacina po MPC
@@ -71,7 +71,7 @@ namespace Kolomat
             if (error == 0) odredjivanjePotencijalaKola(grane , element);
             if (error == 0) NaponSanga(element);
 
-            if (error == 0) meni(grane,element,tacke);
+            if (error == 0) meni(grane,element,tacke,jednacine);
 
 
             if (error == 1) Console.WriteLine("Prekid izvrsavanja usled gore navedene greske !!!!! \n\n\n");
@@ -312,7 +312,7 @@ namespace Kolomat
         }//nalazi referentni cvor ako ima idealna naponska grana setuje
                                                                             //setuje i odgovarajuci idealni naponski cvor
 
-        static void ispisFormulaMPC(tacka[] tacke ,int nT, grana[] grane,int nG) // ispisuje formule po MPC , podesava dodatne
+        static void ispisFormulaMPC(tacka[] tacke, int nT, grana[] grane, int nG, ref string[ , ] xpro) // ispisuje formule po MPC , podesava dodatne
                                                                                  // parametre poznatih grna nakraju i rjesi
                                                                                  // sistem jednacina simbolicki i logicki
         {
@@ -325,6 +325,9 @@ namespace Kolomat
 
             int brC = 0;
             int brF = 0;
+
+           
+
             for(int i = 0; i < nT ; i++)
             {
                 if (tacke[i].CvorProvera() == 1) brC++;
@@ -337,6 +340,8 @@ namespace Kolomat
                 grane[i].strujaPGrane();
             }
 
+            string[,] jednacine = new string[7, brF];
+
             if (brF > 0)
             {
 
@@ -344,7 +349,7 @@ namespace Kolomat
 
                 for (int i = 0; i < nT; i++)
                 {
-                    tacke[i].FormuleDatiOblik1(nG, grane, ref brojac);
+                    jednacine[0, brojac] = tacke[i].FormuleDatiOblik1(nG, grane, ref brojac);
                     if (brojac == brF)
                     {
                         break;
@@ -354,7 +359,7 @@ namespace Kolomat
                 Console.WriteLine("-------------------------------------------------------------------");
                 for (int i = 0; i < nT; i++)
                 {
-                    tacke[i].FormuleDatiOblik2(nG, grane, ref brojac);
+                    jednacine[1, brojac] = tacke[i].FormuleDatiOblik2(nG, grane, ref brojac);
                     if (brojac == brF)
                     {
                         break;
@@ -366,7 +371,7 @@ namespace Kolomat
                 brojac = 0;
                 for (int i = 0; i < nT; i++)
                 {
-                    tacke[i].FormuleDatiOblik3(nG, grane, ref brojac, ref formule[brojac]);
+                    jednacine[2, brojac] = tacke[i].FormuleDatiOblik3(nG, grane, ref brojac, ref formule[brojac]);
                     if (brojac == brF)
                     {
                         break;
@@ -378,6 +383,7 @@ namespace Kolomat
                 {
                     formulaMod(ref formule[i]);
                     Console.WriteLine(formule[i]);
+                    jednacine[3, i] = formule[i];
                 }
 
                 Console.WriteLine("-------------------------------------------------------------------");
@@ -386,6 +392,7 @@ namespace Kolomat
                 {
                     formulaMod2(ref formule[i]);
                     Console.WriteLine(formule[i]);
+                    jednacine[4, i] = formule[i];
                 }
 
                 Console.WriteLine("-------------------------------------------------------------------");
@@ -394,6 +401,7 @@ namespace Kolomat
                 {
                     formulaMod3(ref formule[i]);
                     Console.WriteLine(formule[i]);
+                    jednacine[5, i] = formule[i];
                 }
 
                 Console.WriteLine("-------------------------------------------------------------------");
@@ -402,10 +410,13 @@ namespace Kolomat
                 {
                     formulaMod4(ref formule[i], brF);
                     Console.WriteLine(formule[i]);
+                    jednacine[6, i] = formule[i];
                 }
 
                 Console.WriteLine("-------------------------------------------------------------------");
                 resavanjeJednacina(ref formule, tacke);
+                xpro = jednacine;
+
 
             }
             else
@@ -1200,6 +1211,14 @@ namespace Kolomat
                               "----------------    Napon izmedju tacaka u kolu    ---------------------\n" +
                               "------------------------------------------------------------------------\n\n");
 
+
+            Console.WriteLine("Postojece tacke su: ");
+            for (int i = 0; i < tacke.Length; i++)
+            {
+                Console.Write("{0} ", tacke[i].id);
+            }
+            Console.WriteLine();
+
             Console.Write("Unesite prvu tacku (ID te tacke) : ");
             ida = int.Parse(Console.ReadLine());
             Console.Write("Unesite drugu tacku (ID te tacke) : ");
@@ -1231,12 +1250,12 @@ namespace Kolomat
 
         } // ispisuje napon izmedju dve unete tacke
 
-        static void meni(grana[] grane, komponenta[] element, tacka[] tacke)
+        static void meni(grana[] grane, komponenta[] element, tacka[] tacke, string[,] jednacine)
         {
 
             int od = 0;
 
-            while (od != 6)
+            while (od != 7)
             {
                 Console.WriteLine("\n         --------------  MENI  -------------                 \n" +
                                   "          1. Ispis struja u svim granama kola \n" +
@@ -1244,7 +1263,8 @@ namespace Kolomat
                                   "          3. Ispis snaga komponenata u kolu \n" +
                                   "          4. Ispis energija kondezatora u kolu \n" +
                                   "          5. Odredjivanje napona izmedju tacaka kola \n" +
-                                  "          6. Izlaz iz programa \n");
+                                  "          6. Ispis formula po metodi potencijala cvorova \n" +
+                                  "          7. Izlaz iz programa \n");
 
                 if(int.TryParse(Console.ReadLine(),out od))
                 {
@@ -1276,6 +1296,9 @@ namespace Kolomat
                         naponIzmedjuTacaka(tacke);
                         break;
                     case 6:
+                        ispisMPC(jednacine,tacke);
+                        break;
+                    case 7:
                         Console.Clear();
                         Console.WriteLine(" \n\n\n\n\n\n\n\n" +
                             "                              Hvala Vam sto ste koristili program KOLOMAT  !!!   \n\n" +
@@ -1311,5 +1334,32 @@ namespace Kolomat
                 tacke[0].VestackiCvor();
             }
         }// popravljanje gresaka za jednostavna kola
+
+        static void ispisMPC(string[ , ] jednacine, tacka[] tacke)
+        {
+
+            Console.WriteLine("------------------------------------------------------------------\n" +
+                              "                Formule resenja kola po metodi \n" +
+                              "                   Potencijala cvorova (MPC)               \n" +
+                              "----------------------------------------------------------------");
+
+            string[] formule = new string[(jednacine.Length / 7)];
+
+            for(int i = 0;i < 7;i++)
+            {
+                for(int j = 0;j < (jednacine.Length / 7); j++)
+                {
+                    Console.WriteLine(jednacine[i,j]);
+                    if(i == 6)
+                    {
+                        formule[j] = jednacine[i,j];
+                    }
+                }
+                Console.WriteLine("-------------------------------------------------------------------");
+            }
+            
+            resavanjeJednacina(ref formule, tacke);
+
+        }
     }
 }
