@@ -519,7 +519,7 @@ namespace Kolomat
                     {
                         break;
                     }
-                    privremena.setovanjeTacaka(V, trenutna.odrediNapon(privremena), I);
+                    privremena.setovanjeTacaka(V, -trenutna.odrediNapon(privremena), I);
 
                     privremena.predjiPrekoKomponente(ref privremena, ref trenutna, this, ref V);
                 }

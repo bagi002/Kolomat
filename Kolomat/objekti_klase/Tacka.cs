@@ -685,6 +685,14 @@ namespace Kolomat
             
         } // vestacki setuje tacku na cvor , tretira se kao vestacki cvor ubuduce
 
+        public void PotencijalCvoraIspis()
+        {
+            if(cvor && poznat)
+            {
+                Console.WriteLine("V{0} = {1:0.000}V",id,V);
+            }
+        }
+
     }
 
 }

@@ -133,3 +133,8 @@ trenutno inplementirane funkcionalnosti
 - small bug Fix
 
 ----------------------------------  19/04/2023 13:00 KOLOMAT V1.2  --------------------------------------
+
+- Ispravljen bag kod odredjivanja potencijala u granama sa strujnim generatorom 
+- Dodat ispis potencijala na svim cvorovima kod MPC , do sada bilo samo za rjesavane jednacine
+
+----------------------------------  20/04/2023 11:00 KOLOMAT V1.3  ---------------------------------------

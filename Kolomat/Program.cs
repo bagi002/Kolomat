@@ -416,6 +416,7 @@ namespace Kolomat
                 Console.WriteLine("-------------------------------------------------------------------");
                 resavanjeJednacina(ref formule, tacke);
                 xpro = jednacine;
+                potenijaliCvorova(tacke);
 
 
             }
@@ -1359,7 +1360,17 @@ namespace Kolomat
             }
             
             resavanjeJednacina(ref formule, tacke);
+            potenijaliCvorova(tacke);
 
+        }
+
+        static void potenijaliCvorova(tacka[] tacke)
+        {
+            Console.WriteLine("-------------------------------------------------------------------------------");
+            for(int i = 0;i < tacke.Length;i++)
+            {
+                tacke[i].PotencijalCvoraIspis();
+            }
         }
     }
 }
