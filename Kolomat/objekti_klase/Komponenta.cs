@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kolomat
+﻿namespace Kolomat
 {
 
     public class komponenta
@@ -16,34 +9,44 @@ namespace Kolomat
         int a;
         tacka ak = null;
         int b;
-        tacka bk = null;
+        public tacka bk = null;
         double I;
         double U;
         double P;
         grana pripadajuca = null;
+        bool generatorPotrosac = false;
 
         double vrednost = -1;
+
+        public void PG()
+        {
+            if (tip.CompareTo("E") == 0)
+            {
+                generatorPotrosac = true;
+            }
+        }
 
         public tacka SuprotniCvor(tacka test)
         {
             tacka povratna = null;
 
-            if (test == ak) 
-            { 
-                povratna = bk; 
-            }else if (test == bk) povratna = ak;
+            if (test == ak)
+            {
+                povratna = bk;
+            }
+            else if (test == bk) povratna = ak;
 
             return povratna;
         }//vraca cvor suprotan od onog datog kao argumenta funkcije
-        public double vratPodatak(int tst) 
+        public double vratPodatak(int tst)
         {
             double x = 0;
 
             switch (tst)
             {
                 case 1: x = U; break;
-                    case 3: x = P; break;
-                    case 2: x = I; break;
+                case 3: x = P; break;
+                case 2: x = I; break;
             }
 
             return x;
@@ -71,7 +74,7 @@ namespace Kolomat
 
             return x;
         }//vraca otpor za otpornik i azurira prolaz kroz granu
-        public double vratiNaponE(ref tacka privremena) 
+        public double vratiNaponE(ref tacka privremena)
         {
             double x = 0;
 
@@ -132,7 +135,7 @@ namespace Kolomat
             string priv = "";
             int i = 1;
 
-            foreach (char s in par[0]) 
+            foreach (char s in par[0])
             {
 
                 if (Char.IsLetter(s))
@@ -146,7 +149,7 @@ namespace Kolomat
 
             }
 
-            if (!(int.TryParse(priv,out n)))
+            if (!(int.TryParse(priv, out n)))
             {
                 n = 0;
             }
@@ -253,19 +256,19 @@ namespace Kolomat
 
         public void promenaVeze(tacka nova, tacka stara) // azurira veze date komponente sve stare veze zamjeni novim
         {
-         // if (tip.CompareTo("W") != 0)
-          //  {
-                if (ak == stara)
-                {
-                    ak = nova;
-                    a = nova.id;
-                }
-                if (bk == stara)
-                {
-                    bk = nova;
-                    b = nova.id;
-                }
-          //  }
+            // if (tip.CompareTo("W") != 0)
+            //  {
+            if (ak == stara)
+            {
+                ak = nova;
+                a = nova.id;
+            }
+            if (bk == stara)
+            {
+                bk = nova;
+                b = nova.id;
+            }
+            //  }
 
         }
 
@@ -521,8 +524,8 @@ namespace Kolomat
             }
             if (tip.CompareTo("E") == 0)
             {
-                U = vrednost; 
-                if(ak == izlazna)
+                U = vrednost;
+                if (ak == izlazna)
                 {
                     x = U;
                 }
@@ -538,7 +541,7 @@ namespace Kolomat
         {
             int x = 0;
 
-            if(test.CompareTo(tip) == 0)
+            if (test.CompareTo(tip) == 0)
             {
                 x = 1;
             }
@@ -589,15 +592,33 @@ namespace Kolomat
             if (tip.CompareTo("R") == 0) promenjiva = "Otpornika";
             if (tip.CompareTo("E") == 0) promenjiva = "Naponskog generatora";
             if (tip.CompareTo("IS") == 0) promenjiva = "Strujnog generatora";
-            
+
 
             if (tip.CompareTo("W") != 0 && tip.CompareTo("C") != 0 && n != 0)
             {
-                Console.WriteLine(" Snaga {0} {1}{2} je : {3:0.000} W", promenjiva, tip, n, Math.Abs(P));
+               
+                    if (generatorPotrosac && tip.CompareTo("E") == 0)
+                    {
+                        Console.WriteLine(" Snaga {0} {1}{2} je : -{3:0.000} W", promenjiva, tip, n, Math.Abs(P));
+                    }
+                    else
+                    {
+                        Console.WriteLine(" Snaga {0} {1}{2} je : {3:0.000} W", promenjiva, tip, n, Math.Abs(P));
+                    }
+                
             }
+               
+            
             if (tip.CompareTo("W") != 0 && tip.CompareTo("C") != 0 && n == 0)
             {
-                Console.WriteLine(" Snaga {0} {1}{2} je : {3:0.000} W", promenjiva, tip, "", Math.Abs(P));
+                if (generatorPotrosac && tip.CompareTo("E") == 0)
+                {
+                    Console.WriteLine(" Snaga {0} {1}{2} je : -{3:0.000} W", promenjiva, tip, "", Math.Abs(P));
+                }
+                else
+                {
+                    Console.WriteLine(" Snaga {0} {1}{2} je : {3:0.000} W", promenjiva, tip, "", Math.Abs(P));
+                }
             }
 
         }
@@ -614,18 +635,18 @@ namespace Kolomat
 
             if (tip.CompareTo("C") == 0 && n != 0)
             {
-                Console.WriteLine(" Energika kondezatora {0}{1} je : {2:0.000} {3}",tip, n, Math.Abs(a),vel);
+                Console.WriteLine(" Energika kondezatora {0}{1} je : {2:0.000} {3}", tip, n, Math.Abs(a), vel);
             }
             if (tip.CompareTo("C") == 0 && n == 0)
             {
-                Console.WriteLine(" Energija kondezatora {0}{1} je : {2:0.000} {3}", tip, "", Math.Abs(a),vel);
+                Console.WriteLine(" Energija kondezatora {0}{1} je : {2:0.000} {3}", tip, "", Math.Abs(a), vel);
             }
 
         }// za kondezator ispise enrgiju
 
         public void PotencijaliZice()
         {
-            if(tip.CompareTo("W") == 0) 
+            if (tip.CompareTo("W") == 0)
             {
                 ak.PotencijalKrajaZice(bk);
             }

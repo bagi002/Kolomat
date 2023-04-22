@@ -48,6 +48,7 @@ namespace Kolomat
             int provera = 0;
             komponenta priv = prva;
             tacka pristupna = uC;
+            tacka xa = uC;
 
 
             while (provera >= 0)
@@ -85,9 +86,11 @@ namespace Kolomat
 
                 } // broji komponente u zavisnosti od povratne vrednosti
 
+                
+
                 if (provera >= 0)
                 {
-                    priv = pristupna.vratiKomponentu(priv);
+                    priv = pristupna.vratiKomponentu(priv,this,ref xa);
                 }
 
             }
@@ -526,6 +529,34 @@ namespace Kolomat
             }
         }
 
+        public void odredjivanjePotrosaca()
+        {
+            tacka privremeni;
+            tacka kraj;
+            komponenta trenutna = null;  
+
+            if(I >= 0) 
+            {
+                privremeni = uC;
+                kraj = izC;
+            }
+            else
+            {
+                privremeni = izC;
+                kraj = uC;
+            }
+
+            while(privremeni != kraj)
+            {
+                trenutna = privremeni.vratiKomponentu(trenutna,this,ref privremeni);
+                
+                    if (privremeni == trenutna.bk) 
+                    {
+                        trenutna.PG();
+                    }
+            }
+
+        }
 
     }
 }

@@ -70,6 +70,7 @@ namespace Kolomat
             if (error == 0) odredjivanjeStrujeKola(grane , element);
             if (error == 0) odredjivanjePotencijalaKola(grane , element);
             if (error == 0) NaponSanga(element);
+            if (error == 0) odredjivanjePotrosaca(grane);
 
             if (error == 0) meni(grane,element,tacke,jednacine);
 
@@ -470,6 +471,15 @@ namespace Kolomat
                         if (c < 0) 
                         {
                             razbijenaF[i - 1] = "-";
+                            c = Math.Abs(c);
+                        }
+                        else
+                        {
+                            if (razbijenaF[i - 1].CompareTo("(") != 0)
+                            {
+                                razbijenaF[i - 1] = "+";
+                                c = Math.Abs(c);
+                            }
                             c = Math.Abs(c);
                         }
                         razbijenaF[i] = razbijenaF[i] + c.ToString();
@@ -1370,6 +1380,14 @@ namespace Kolomat
             for(int i = 0;i < tacke.Length;i++)
             {
                 tacke[i].PotencijalCvoraIspis();
+            }
+        }
+
+        static void odredjivanjePotrosaca(grana[] grane)
+        {
+            for(int i = 0; i < grane.Length;i++)
+            {
+                grane[i].odredjivanjePotrosaca();
             }
         }
     }

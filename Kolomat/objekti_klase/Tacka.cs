@@ -258,22 +258,38 @@ namespace Kolomat
             if (cvor) x = nkonekcija;
             return x;
         }//vrati br konekcija ako je tacka cvor inace 0
-        public komponenta vratiKomponentu(komponenta priv)
+        public komponenta vratiKomponentu(komponenta priv,grana trenutna,ref tacka prateca)
         {
             komponenta nova = null;
             int x = 0;
 
-            if (konekcije[0] == priv && x == 0)
+            if (!cvor)
             {
-                x = 1;
-                nova = konekcije[1];
+                if (konekcije[0] == priv && x == 0)
+                {
+                    x = 1;
+                    nova = konekcije[1];
+                }
+
+                if (konekcije[1] == priv && x == 0)
+                {
+                    x = 1;
+                    nova = konekcije[0];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < nkonekcija; i++)
+                {
+                    if (konekcije[i].proveraPripadnostiGrani(trenutna) == 1)
+                    {
+                        nova = konekcije[i];
+                        break;
+                    }
+                }
             }
 
-            if (konekcije[1] == priv && x == 0)
-            {
-                x = 1;
-                nova = konekcije[0];
-            }
+            prateca = nova.SuprotniCvor(prateca);
 
             return nova;
         }//vraca narednu komponentu konektovanu na ovaj cvor // ide kroz granu

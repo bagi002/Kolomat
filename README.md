@@ -138,3 +138,10 @@ trenutno inplementirane funkcionalnosti
 - Dodat ispis potencijala na svim cvorovima kod MPC , do sada bilo samo za rjesavane jednacine
 
 ----------------------------------  20/04/2023 11:00 KOLOMAT V1.3  ---------------------------------------
+
+- Otkolonjen niz bagova kod funkcija za pisanje i resavanje jednacina (neki bagovi nasatli zbog
+  otklanjanja niza prethodnih bagova , rjeseno u potpunosti - Optimizovano)
+- Rjesen problem kod ispisa snaga generatora
+- Implementirana funkcija za provjeru je li generator ustvari potrosac
+
+----------------------------------  22/04/2023 17:00 KOLOMAT V1.4  ----------------------------------------
